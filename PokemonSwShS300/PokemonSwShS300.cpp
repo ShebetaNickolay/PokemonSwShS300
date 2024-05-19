@@ -4,6 +4,7 @@
 using namespace sf;
 
 int main() {
+    cout << 1;
     sf::RenderWindow window(sf::VideoMode(1600, 1000), "Pokemon. Galar forest battle.");
 
     while (window.isOpen())
@@ -20,5 +21,6 @@ int main() {
         window.display();
     }
 
+   
     return 0;
 }

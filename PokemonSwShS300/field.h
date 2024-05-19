@@ -1,12 +1,48 @@
 #include <SFML/Graphics.hpp>
 #include "button.h"
+#include "pokemon.h"
+#include "command.h"
+#include <iostream>
+#include <vector>
 
+using namespace std;
 using namespace sf;
-void drawField(sf::RenderWindow& window) {
+
+void info(PokeMon your) {
+	cout << "Имя ПокеМона: " << your.getName() << '\n';
+	cout << "Типы ПокеМона: " << your.getTypes().first << ' ' << your.getTypes().second << '\n';
+	cout << "Принадлежность: " << your.getOwner() << '\n';
+	vector<PCommand> list = your.getMoves();
+	for (int i = 0; i < list.size(); i++) {
+		cout << list[i].getName() << '\n';
+	}
+}
+
+pair<PokeMon, PokeMon> create(){
+	vector<PCommand> yourList, enemyList;
+
+	yourList.push_back(PCommand(50, 0, 1, "Arm Thrust"));
+	yourList.push_back(PCommand(25, 0, 2, "Body Press"));
+	yourList.push_back(PCommand(150, 0, 1, "Close Combatt"));
+	yourList.push_back(PCommand(0, 100, 2, "Arm Thrust"));
+
+	enemyList.push_back(PCommand(75, 0, 3, "Aqua Jet"));
+	enemyList.push_back(PCommand(25, 25, 4, "G-Max Cannonade"));
+	enemyList.push_back(PCommand(100, 0, 3, "G-Max Foam Burst"));
+	enemyList.push_back(PCommand(0, 150, 4, "Razor Shell"));
+
+	PokeMon your  = PokeMon(300, yourList, 0, 1, 2, "Snom");
+	PokeMon enemy = PokeMon(250, enemyList, 1, 3, 4, "Sobble");
+
+	info(your);
+
+
+	return make_pair(your, enemy);
+}
+
+void drawField(RenderWindow& window) {
 	Texture texture; 
-	if (!texture.loadFromFile("img/battle_phon/forest2.png")) 
-	{ // Ошибка при загрузке текстуры
-		return; } 
+	if (!texture.loadFromFile("img/battle_phon/forest2.png")) { return; } 
 	Sprite sprite(texture); 
 
 	sprite.setTexture(texture); 
@@ -45,9 +81,10 @@ void drawField(sf::RenderWindow& window) {
 	InfoRectangle.setOutlineColor(Color::Black);
 	InfoRectangle.setOutlineThickness(5);
 	
-
+	pair<PokeMon, PokeMon> tmp = create();
+	// Загрузка изображения вашего покемона
 	Texture yourPokemonTexture;
-	if (!yourPokemonTexture.loadFromFile("img/enemy_pokemon/sobble.png")) {
+	if (!yourPokemonTexture.loadFromFile(tmp.first.getPath())) {
 		// Ошибка при загрузке изображения
 		return;
 	}
@@ -55,7 +92,7 @@ void drawField(sf::RenderWindow& window) {
 
 	// Загрузка изображения для вражеского ПокеМона
 	Texture enemyPokemonTexture;
-	if (!enemyPokemonTexture.loadFromFile("img/enemy_pokemon/snom.png")) {
+	if (!enemyPokemonTexture.loadFromFile(tmp.second.getPath())) {
 		// Ошибка при загрузке изображения
 		return;
 	}
