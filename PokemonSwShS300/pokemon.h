@@ -7,7 +7,9 @@ using namespace std;
 
 class PokeMon {
 private: 
-	int health;                // Здоровье
+	double health;                // Здоровье
+	double attack;                // Базовый урон
+	double defense;               // Защита
 	vector<PCommand> moves;    // Список комманды
 	bool owner;				   // Принадлежность ПокеМона, 0 - мой, 1 - чужой 
 	int type1;				   // Первый тип ПокеМона
@@ -16,8 +18,8 @@ private:
 
 public: 
 	// Конструктор 
-	PokeMon(int health, vector<PCommand> moves, bool owner, int type1, int type2, string name) :
-		health(health), moves(moves), owner(owner), type1(type1), type2(type2), name(name) {};
+	PokeMon(double health, double attack, double defense, vector<PCommand> moves, bool owner, int type1, int type2, string name) :
+		health(health), attack(attack), defense(defense), moves(moves), owner(owner), type1(type1), type2(type2), name(name) {};
 	~PokeMon() {};
 
 	string getPath() {
@@ -33,22 +35,20 @@ public:
 		return path;
 	}
 
-	// Возвращение здоровья
-	int getHealth()
-	{
-		return health;
-	}
+	// Возвращение очков здоровья
+	double getHealth() { return health; }
+
+	// Возвращение базового урона
+	double getAttack() { return attack;}
+
+	// Возвращение очков защиты
+	double getDefense() { return defense;}
 
 	// Возвращени списка комманд
-	vector<PCommand> getMoves() {
-		return moves;
-	}
+	vector<PCommand> getMoves() { return moves;}
 
 	// Возвращение принадлежности
-	bool getOwner()
-	{
-		return owner;
-	}
+	bool getOwner() { return owner; }
 
 	// Возвращение типов ПокеМона
 	pair<int, int> getTypes() {
@@ -56,9 +56,11 @@ public:
 	}
 
 	// Возвращение наименование комманды
-	string getName() {
-		return name;
+	string getName() { return name; }
+
+	// метод получения урона от вражеского Покемона 
+	void takeDamage(int damageOther) {
+		(*this).health -= damageOther;
 	}
-	void takeDamage(int damage); // метод получения урона от вражеского Покемона 
 	// void useMove(Pokemon* enemy); // метод нанесения урона врагу 
 };

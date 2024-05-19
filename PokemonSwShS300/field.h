@@ -8,39 +8,52 @@
 using namespace std;
 using namespace sf;
 
-void info(PokeMon your) {
-	cout << "Имя ПокеМона: " << your.getName() << '\n';
-	cout << "Типы ПокеМона: " << your.getTypes().first << ' ' << your.getTypes().second << '\n';
-	cout << "Принадлежность: " << your.getOwner() << '\n';
-	vector<PCommand> list = your.getMoves();
-	for (int i = 0; i < list.size(); i++) {
-		cout << list[i].getName() << '\n';
-	}
+const int LEVEL = 1;
+const double EPS = 1e-6;
+
+vector <vector<int>> colorTypeList = {
+	{ 200, 200, 200},
+	{ 255, 153,  51},
+	{ 102, 178, 200},
+	{  0, 204, 102},
+	{ 255, 255,  51},
+	{ 102, 255, 255},
+	{ 255,   0,   0},
+	{ 153,  51, 255},
+	{ 204, 102,   0},
+	{ 153, 255, 255},
+	{ 255, 153, 255},
+	{ 128, 255,   0},
+	{ 153,  76,   0},
+	{ 204, 153, 255},
+	{ 76,   0, 153},
+	{ 96,  96,  96},
+	{ 202, 202, 202},
+	{ 255, 204, 229},
+};
+
+
+int getRandomNumber() {
+	return rand() % 4;
 }
 
-pair<PokeMon, PokeMon> create(){
-	vector<PCommand> yourList, enemyList;
 
-	yourList.push_back(PCommand(50, 0, 1, "Arm Thrust"));
-	yourList.push_back(PCommand(25, 0, 2, "Body Press"));
-	yourList.push_back(PCommand(150, 0, 1, "Close Combatt"));
-	yourList.push_back(PCommand(0, 100, 2, "Arm Thrust"));
+void enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand) {
+	double coeff = 1.5;
+	double yourArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.first.getAttack() / 3.0) / 50.0 + 2) * coeff;
 
-	enemyList.push_back(PCommand(75, 0, 3, "Aqua Jet"));
-	enemyList.push_back(PCommand(25, 25, 4, "G-Max Cannonade"));
-	enemyList.push_back(PCommand(100, 0, 3, "G-Max Foam Burst"));
-	enemyList.push_back(PCommand(0, 150, 4, "Razor Shell"));
+	tmp.second.takeDamage(abs(tmp.second.getDefense() - yourArttack));
+};
 
-	PokeMon your  = PokeMon(300, yourList, 0, 1, 2, "Snom");
-	PokeMon enemy = PokeMon(250, enemyList, 1, 3, 4, "Sobble");
+void youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand) {
+	double coeff = 1.5;
+	double enemyAttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.second.getAttack() / 3.0) / 50.0 + 2) * coeff;
 
-	info(your);
+	tmp.first.takeDamage(abs(tmp.first.getDefense() - enemyAttack));
+};
 
 
-	return make_pair(your, enemy);
-}
-
-void drawField(RenderWindow& window) {
+void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp) {
 	Texture texture; 
 	if (!texture.loadFromFile("img/battle_phon/forest2.png")) { return; } 
 	Sprite sprite(texture); 
@@ -55,17 +68,9 @@ void drawField(RenderWindow& window) {
 	RectangleShape YouSquare(Vector2f(550, 550));
 	YouSquare.setPosition(150, 375);
 
-	// Полоса здоровья текущего вашего ПокеМона
-	RectangleShape YouHP(Vector2f(250, 50));
-	YouHP.setPosition(725, 800);
-
 	// Вражеский ПокеМон
 	RectangleShape EnemySquare(Vector2f(250, 250));
 	EnemySquare.setPosition(1125, 200);
-
-	// Полоса здоровья варжеского ПокеМона
-	RectangleShape EnemyHP(Vector2f(250, 50));
-	EnemyHP.setPosition(850, 200);
 
 	// Основная часть для меню 
 	RectangleShape MenuRectangle(Vector2f(550, 400));
@@ -81,7 +86,6 @@ void drawField(RenderWindow& window) {
 	InfoRectangle.setOutlineColor(Color::Black);
 	InfoRectangle.setOutlineThickness(5);
 	
-	pair<PokeMon, PokeMon> tmp = create();
 	// Загрузка изображения вашего покемона
 	Texture yourPokemonTexture;
 	if (!yourPokemonTexture.loadFromFile(tmp.first.getPath())) {
@@ -101,32 +105,61 @@ void drawField(RenderWindow& window) {
 	// Отрисовка всех элементов
 	window.draw(sprite);
 	window.draw(YouSquare);
-	window.draw(YouHP);
+
 	window.draw(EnemySquare);
-	window.draw(EnemyHP);
 	window.draw(MenuRectangle);
 	window.draw(InfoRectangle);
 
+	vector<PCommand> list = tmp.first.getMoves();
+
 	// Приемы вашего ПокеМона
-	Button firstButton(1050, 600, 250, 150, "First");
-	firstButton.setColor(255, 255, 255); // устанавливаем белый цвет
+	Button firstButton(1050, 600, 250, 150, list[0].getName());
+	firstButton.setColor(colorTypeList[list[0].getTypeCom()]);
 	firstButton.drawButton(window);
 
-	Button secondButton(1325, 600, 250, 150, "Second");
-	secondButton.setColor(255, 0, 0); // устанавливаем белый цвет
+	Button secondButton(1325, 600, 250, 150, list[1].getName());
+	secondButton.setColor(colorTypeList[list[1].getTypeCom()]);
 	secondButton.drawButton(window);
 
-	Button thirdButton(1050, 800, 250, 150, "Third");
-	thirdButton.setColor(0, 255, 0); // устанавливаем белый цвет
+	Button thirdButton(1050, 800, 250, 150, list[2].getName());
+	thirdButton.setColor(colorTypeList[list[2].getTypeCom()]);
 	thirdButton.drawButton(window);
 	
-	Button fourthButton(1325, 800, 250, 150, "Fourth");
-	fourthButton.setColor(0, 0, 255); // устанавливаем белый цвет
+	Button fourthButton(1325, 800, 250, 150, list[3].getName());
+	fourthButton.setColor(colorTypeList[list[3].getTypeCom()]);
 	fourthButton.drawButton(window);
 
 	Button Run(25, 25, 100, 50, "Run");
-	Run.setColor(0, 0, 255); // устанавливаем белый цвет
+	Run.setColor(0, 0, 255);
 	Run.drawButton(window);
 
+	Button yourHPline(725, 800, 250, 50, to_string(tmp.first.getHealth()));
+	yourHPline.setColor(0, 255, 0); 
+	yourHPline.drawButton(window);
+
+	Button enemyHPline(850, 200, 250, 50, to_string(tmp.second.getHealth()));
+	enemyHPline.setColor(0, 255, 0);
+	enemyHPline.drawButton(window);
+
+	// Обработка нажатия на кнопки с выбором команды
+	Vector2f mousePos = window.mapPixelToCoords(Mouse::getPosition(window));
+	if (Mouse::isButtonPressed(Mouse::Left)) {
+		if (firstButton.isButtonHovered(mousePos)) {
+			// Обработка нажатия на первую кнопку
+			enemyTakeDamage(tmp, list[0]);
+		}
+		else if (secondButton.isButtonHovered(mousePos)) {
+			// Обработка нажатия на вторую кнопку
+			enemyTakeDamage(tmp, list[1]);
+		}
+		else if (thirdButton.isButtonHovered(mousePos)) {
+			// Обработка нажатия на третью кнопку
+			enemyTakeDamage(tmp, list[2]);
+		}
+		else if (fourthButton.isButtonHovered(mousePos)) {
+			// Обработка нажатия на четвертую кнопку
+			enemyTakeDamage(tmp, list[3]);
+		}
+	}
 
 }

@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 
+using namespace std;
+using namespace sf;
 class Button {
 private:
     double x;
@@ -20,6 +22,10 @@ public:
     void setColor(double first, double second, double third) {
         color = sf::Color(first, second, third);
     }
+
+    void setColor(vector<int> &colors) {
+        color = sf::Color(colors[0], colors[1], colors[2]);
+    }
     void setPosition(double x_1, double y_1) {
         x = x_1;
         y = y_1;
@@ -33,17 +39,21 @@ public:
         text = text_1;
     }
 
-    void drawButton(sf::RenderWindow& window) {
-        sf::RectangleShape button(sf::Vector2f(width, height));
+    void drawButton(RenderWindow& window) {
+        RectangleShape button(Vector2f(width, height));
         button.setPosition(x, y);
         button.setFillColor(color);
         window.draw(button);
 
-        sf::Font font;
-        font.loadFromFile("arial.ttf");
-        sf::Text buttonText(text, font, 20);
+        Font font;
+        font.loadFromFile("C:/Windows/Fonts/arial.ttf");
+
+        Text buttonText;
+        buttonText.setFont(font);
+        buttonText.setString(text);
+        buttonText.setCharacterSize(24);
         buttonText.setFillColor(sf::Color::Black);
-        buttonText.setPosition(x + width / 2 - text.size() / 2, y + height / 2 - 10);
+        buttonText.setPosition(x + width / 2 - buttonText.getLocalBounds().width / 2, y + height / 2 - 10);
         window.draw(buttonText);
     }
 
