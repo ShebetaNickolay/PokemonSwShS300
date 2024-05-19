@@ -1,30 +1,24 @@
 ﻿#include <SFML/Graphics.hpp>
+#include "field.h" 
 
 using namespace sf;
 
-int main()
-{
-
-    RenderWindow window(VideoMode(400, 400), L"Новый проект", Style::Default);
-
-    window.setVerticalSyncEnabled(true);
-
-    CircleShape shape(100.f, 3);
-    shape.setPosition(100, 100);
-    shape.setFillColor(Color::Magenta);
+int main() {
+    sf::RenderWindow window(sf::VideoMode(1600, 1000), "Pokemon. Galar forest battle.");
 
     while (window.isOpen())
     {
-        Event event;
+        sf::Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == Event::Closed)
+            if (event.type == sf::Event::Closed)
                 window.close();
         }
 
-        window.clear(Color::Blue);
-        window.draw(shape);
+        window.clear();
+        drawField(window);
         window.display();
     }
+
     return 0;
 }
