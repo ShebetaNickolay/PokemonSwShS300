@@ -1,3 +1,6 @@
+#ifndef PokeMon_HEADER
+#define PokeMon_HEADER
+
 #include <SFML/Graphics.hpp>
 #include <vector> 
 #include <string>
@@ -64,3 +67,5 @@ public:
 	}
 	// void useMove(Pokemon* enemy); // метод нанесения урона врагу 
 };
+
+#endif

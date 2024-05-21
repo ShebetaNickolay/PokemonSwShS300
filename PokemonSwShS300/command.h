@@ -17,7 +17,7 @@ public:
 
 	// Конструктор 
 	PCommand(double damage, double healing, bool owner, int type, string name) :
-		damage(damage), healing(healing), type(type), owner(owner), name(name) {};
+		damage(damage), healing(healing), owner(owner), type(type), name(name) {};
 	~PCommand() {};
 
 	// Возвращение урона

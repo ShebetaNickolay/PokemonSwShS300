@@ -1,9 +1,13 @@
 #include <SFML/Graphics.hpp>
+
 #include "button.h"
 #include "pokemon.h"
 #include "command.h"
+
 #include <iostream>
 #include <vector>
+#include <sstream>
+#include <string>
 
 using namespace std;
 using namespace sf;
@@ -32,28 +36,60 @@ vector <vector<int>> colorTypeList = {
 	{ 255, 204, 229},
 };
 
+std::string limitPrecision(double number, int precision) {
+	std::ostringstream oss;
+	oss.precision(precision);
+	oss << std::fixed << number;
+	return oss.str();
+}
 
 int getRandomNumber() {
 	return rand() % 4;
 }
 
-
-void enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand) {
+double enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand) {
 	double coeff = 1.5;
 	double yourArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.first.getAttack() / 3.0) / 50.0 + 2) * coeff;
-
-	tmp.second.takeDamage(abs(tmp.second.getDefense() - yourArttack));
+	double dmg = tmp.second.getDefense() - yourArttack;
+	if (dmg <= 0.0) {
+		tmp.second.takeDamage(-dmg);
+		return dmg;
+	}
+	return 0.0;
 };
 
-void youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand) {
+double youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand) {
 	double coeff = 1.5;
-	double enemyAttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.second.getAttack() / 3.0) / 50.0 + 2) * coeff;
+	double enemyArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.second.getAttack() / 3.0) / 50.0 + 2) * coeff;
+	double dmg = tmp.first.getDefense() - enemyArttack;
+	if (dmg <= 0.0) {
+		tmp.first.takeDamage(-dmg);
+		return dmg;
+	}
 
-	tmp.first.takeDamage(abs(tmp.first.getDefense() - enemyAttack));
+	return 0, 0;
 };
 
+string create_new_situation(pair<PokeMon, PokeMon>& tmp, double first, double second) {
+	string res = "Your " + tmp.first.getName();
+	res += (" dealt " + limitPrecision(abs(first), 2) + " points of damage. ");
+	res += ("Enemy's " + tmp.second.getName());
+	res += (" dealt " + limitPrecision(abs(second), 2) + " points of damage to you.\n");
 
-void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp) {
+	if (tmp.first.getHealth() <= 0.0) {
+		res += ("Your PokeMon fell in battle.\n");
+	}
+
+	if (tmp.second.getHealth() <= 0.0) {
+		res += ("The enemy Pokemon fell in battle");
+	}
+	return res;
+}
+
+void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situation) {
+
+	vector<PCommand> list = tmp.first.getMoves();
+
 	Texture texture; 
 	if (!texture.loadFromFile("img/battle_phon/forest2.png")) { return; } 
 	Sprite sprite(texture); 
@@ -79,13 +115,16 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp) {
 	MenuRectangle.setOutlineColor(Color::Black);
 	MenuRectangle.setOutlineThickness(5);
 
-	// Отображение текущей операции / ситуации на поле боя
-	RectangleShape InfoRectangle(Vector2f(1000, 50));
-	InfoRectangle.setPosition(300, 10);
-	InfoRectangle.setFillColor(Color(0, 140, 0)); // Темно-зеленый цвет
-	InfoRectangle.setOutlineColor(Color::Black);
-	InfoRectangle.setOutlineThickness(5);
-	
+	// Установка шрифта для текста
+	Font font;
+	font.loadFromFile("C:/Windows/Fonts/arial.ttf");
+	Text text;
+	text.setFont(font);
+	text.setCharacterSize(24);
+	text.setFillColor(Color::White);
+	text.setString(situation);
+	text.setPosition(300, 10);
+
 	// Загрузка изображения вашего покемона
 	Texture yourPokemonTexture;
 	if (!yourPokemonTexture.loadFromFile(tmp.first.getPath())) {
@@ -105,12 +144,9 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp) {
 	// Отрисовка всех элементов
 	window.draw(sprite);
 	window.draw(YouSquare);
-
 	window.draw(EnemySquare);
 	window.draw(MenuRectangle);
-	window.draw(InfoRectangle);
-
-	vector<PCommand> list = tmp.first.getMoves();
+	window.draw(text);
 
 	// Приемы вашего ПокеМона
 	Button firstButton(1050, 600, 250, 150, list[0].getName());
@@ -129,37 +165,64 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp) {
 	fourthButton.setColor(colorTypeList[list[3].getTypeCom()]);
 	fourthButton.drawButton(window);
 
+	// Кнопка побега, версия 1
 	Button Run(25, 25, 100, 50, "Run");
-	Run.setColor(0, 0, 255);
+	Run.setColor(0, 204, 102);
 	Run.drawButton(window);
 
+	// Полосы здровья вашего и вражеского Покемона
 	Button yourHPline(725, 800, 250, 50, to_string(tmp.first.getHealth()));
-	yourHPline.setColor(0, 255, 0); 
+	yourHPline.setColor(0, 153, 0); 
+	if (tmp.first.getHealth() <= 0.0) {
+		yourHPline.setColor(204, 0, 0);
+	}
 	yourHPline.drawButton(window);
 
 	Button enemyHPline(850, 200, 250, 50, to_string(tmp.second.getHealth()));
-	enemyHPline.setColor(0, 255, 0);
+	enemyHPline.setColor(0, 151, 0);
+	if (tmp.second.getHealth() <= 0.0) {
+		enemyHPline.setColor(204, 0, 0);
+	}
 	enemyHPline.drawButton(window);
-
+	
+	bool flag = false;
+	double yourAttackStr = 0.0, enemyAttackStr = 0.0;
 	// Обработка нажатия на кнопки с выбором команды
 	Vector2f mousePos = window.mapPixelToCoords(Mouse::getPosition(window));
 	if (Mouse::isButtonPressed(Mouse::Left)) {
 		if (firstButton.isButtonHovered(mousePos)) {
 			// Обработка нажатия на первую кнопку
-			enemyTakeDamage(tmp, list[0]);
+			yourAttackStr = enemyTakeDamage(tmp, list[0]);
+			flag = true;
+			enemyAttackStr = 0.0;
 		}
 		else if (secondButton.isButtonHovered(mousePos)) {
 			// Обработка нажатия на вторую кнопку
-			enemyTakeDamage(tmp, list[1]);
+			yourAttackStr = enemyTakeDamage(tmp, list[1]);
+			flag = true;
+			enemyAttackStr = 0.0;
 		}
 		else if (thirdButton.isButtonHovered(mousePos)) {
 			// Обработка нажатия на третью кнопку
-			enemyTakeDamage(tmp, list[2]);
+			yourAttackStr = enemyTakeDamage(tmp, list[2]);
+			flag = true;
+			enemyAttackStr = 0.0;
 		}
 		else if (fourthButton.isButtonHovered(mousePos)) {
 			// Обработка нажатия на четвертую кнопку
-			enemyTakeDamage(tmp, list[3]);
+			yourAttackStr = enemyTakeDamage(tmp, list[3]);
+			flag = true;
+			enemyAttackStr = 0.0;
 		}
 	}
 
+	vector<PCommand> listEnemyCommand = tmp.second.getMoves();
+	if (flag) {
+		sleep(seconds(1));
+		if (tmp.second.getHealth() > 0.0) {
+			enemyAttackStr = youTakeDamage(tmp, listEnemyCommand[getRandomNumber()]);
+			flag = false;
+		}
+		situation = create_new_situation(tmp, yourAttackStr, enemyAttackStr);
+	}
 }
