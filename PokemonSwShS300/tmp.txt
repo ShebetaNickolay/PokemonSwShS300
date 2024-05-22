@@ -4,7 +4,7 @@
 
 using namespace std;
 using namespace sf;
-class Button {
+class HP_LINE {
 private:
     double x;
     double y;
@@ -12,11 +12,13 @@ private:
     double height;
     std::string text;
     sf::Color color;
+    double beginHealth;
 public:
-    Button() : x(0), y(0), width(0), height(0), text(""), color(sf::Color::Red) {};
-    Button(double x, double y, double width, double height, std::string text)
-        : x(x), y(y), width(width), height(height), text(text), color(sf::Color::Red) {};
-    Button(const Button& other) : x(other.x), y(other.y), width(other.width), height(other.height), text(other.text), color(other.color) {};
+    Button() : x(0), y(0), width(0), height(0), text(""), color(sf::Color::Red), beginHealth(0.0) {};
+    Button(double x, double y, double width, double height, std::string text, double beginHealth)
+        : x(x), y(y), width(width), height(height), text(text), color(sf::Color::Red),  {};
+    Button(const Button& other) : x(other.x), y(other.y), width(other.width), height(other.height), text(other.text), 
+        color(other.color),  beginHealth(beginHealth){};
     ~Button() {};
 
     void setPosition(double x_1, double y_1) {
@@ -33,7 +35,7 @@ public:
     }
 
     void drawButton(RenderWindow& window) {
-        RectangleShape button(Vector2f(width, height));
+        RectangleShape button(Vector2f(width * , height));
         button.setPosition(x, y);
         button.setFillColor(Color(204, 0, 0));
         window.draw(button);
