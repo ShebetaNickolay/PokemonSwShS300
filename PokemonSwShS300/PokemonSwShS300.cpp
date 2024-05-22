@@ -13,6 +13,7 @@ using namespace sf;
 using namespace std;
 
 int getRandomNumberN(int n) {
+    srand(time(0));
     return rand() % n;
 }
 
