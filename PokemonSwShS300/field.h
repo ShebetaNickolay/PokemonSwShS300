@@ -44,6 +44,7 @@ std::string limitPrecision(double number, int precision) {
 }
 
 int getRandomNumber() {
+	srand(time(0));
 	return rand() % 4;
 }
 
@@ -100,22 +101,22 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 		
 	sprite.setPosition(0, 0);
 
-	// Ваш ПокеМон
+	// Г‚Г Гё ГЏГ®ГЄГҐГЊГ®Г­
 	RectangleShape YouSquare(Vector2f(550, 550));
 	YouSquare.setPosition(150, 375);
 
-	// Вражеский ПокеМон
+	// Г‚Г°Г Г¦ГҐГ±ГЄГЁГ© ГЏГ®ГЄГҐГЊГ®Г­
 	RectangleShape EnemySquare(Vector2f(250, 250));
 	EnemySquare.setPosition(1125, 200);
 
-	// Основная часть для меню 
+	// ГЋГ±Г­Г®ГўГ­Г Гї Г·Г Г±ГІГј Г¤Г«Гї Г¬ГҐГ­Гѕ 
 	RectangleShape MenuRectangle(Vector2f(550, 400));
 	MenuRectangle.setPosition(1040, 585);
-	MenuRectangle.setFillColor(Color(0, 140, 0)); // Темно-зеленый цвет
+	MenuRectangle.setFillColor(Color(0, 140, 0)); // Г’ГҐГ¬Г­Г®-Г§ГҐГ«ГҐГ­Г»Г© Г¶ГўГҐГІ
 	MenuRectangle.setOutlineColor(Color::Black);
 	MenuRectangle.setOutlineThickness(5);
 
-	// Установка шрифта для текста
+	// Г“Г±ГІГ Г­Г®ГўГЄГ  ГёГ°ГЁГґГІГ  Г¤Г«Гї ГІГҐГЄГ±ГІГ 
 	Font font;
 	font.loadFromFile("C:/Windows/Fonts/arial.ttf");
 	Text text;
@@ -125,30 +126,30 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	text.setString(situation);
 	text.setPosition(300, 10);
 
-	// Загрузка изображения вашего покемона
+	// Г‡Г ГЈГ°ГіГ§ГЄГ  ГЁГ§Г®ГЎГ°Г Г¦ГҐГ­ГЁГї ГўГ ГёГҐГЈГ® ГЇГ®ГЄГҐГ¬Г®Г­Г 
 	Texture yourPokemonTexture;
 	if (!yourPokemonTexture.loadFromFile(tmp.first.getPath())) {
-		// Ошибка при загрузке изображения
+		// ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г§Г ГЈГ°ГіГ§ГЄГҐ ГЁГ§Г®ГЎГ°Г Г¦ГҐГ­ГЁГї
 		return;
 	}
 	YouSquare.setTexture(&yourPokemonTexture);
 
-	// Загрузка изображения для вражеского ПокеМона
+	// Г‡Г ГЈГ°ГіГ§ГЄГ  ГЁГ§Г®ГЎГ°Г Г¦ГҐГ­ГЁГї Г¤Г«Гї ГўГ°Г Г¦ГҐГ±ГЄГ®ГЈГ® ГЏГ®ГЄГҐГЊГ®Г­Г 
 	Texture enemyPokemonTexture;
 	if (!enemyPokemonTexture.loadFromFile(tmp.second.getPath())) {
-		// Ошибка при загрузке изображения
+		// ГЋГёГЁГЎГЄГ  ГЇГ°ГЁ Г§Г ГЈГ°ГіГ§ГЄГҐ ГЁГ§Г®ГЎГ°Г Г¦ГҐГ­ГЁГї
 		return;
 	}
 	EnemySquare.setTexture(&enemyPokemonTexture);
 
-	// Отрисовка всех элементов
+	// ГЋГІГ°ГЁГ±Г®ГўГЄГ  ГўГ±ГҐГµ ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў
 	window.draw(sprite);
 	window.draw(YouSquare);
 	window.draw(EnemySquare);
 	window.draw(MenuRectangle);
 	window.draw(text);
 
-	// Приемы вашего ПокеМона
+	// ГЏГ°ГЁГҐГ¬Г» ГўГ ГёГҐГЈГ® ГЏГ®ГЄГҐГЊГ®Г­Г 
 	Button firstButton(1050, 600, 250, 150, list[0].getName());
 	firstButton.setColor(colorTypeList[list[0].getTypeCom()]);
 	firstButton.drawButton(window);
@@ -165,12 +166,12 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	fourthButton.setColor(colorTypeList[list[3].getTypeCom()]);
 	fourthButton.drawButton(window);
 
-	// Кнопка побега, версия 1
+	// ГЉГ­Г®ГЇГЄГ  ГЇГ®ГЎГҐГЈГ , ГўГҐГ°Г±ГЁГї 1
 	Button Run(25, 25, 100, 50, "Run");
 	Run.setColor(0, 204, 102);
 	Run.drawButton(window);
 
-	// Полосы здровья вашего и вражеского Покемона
+	// ГЏГ®Г«Г®Г±Г» Г§Г¤Г°Г®ГўГјГї ГўГ ГёГҐГЈГ® ГЁ ГўГ°Г Г¦ГҐГ±ГЄГ®ГЈГ® ГЏГ®ГЄГҐГ¬Г®Г­Г 
 	Button yourHPline(725, 800, 250, 50, to_string(tmp.first.getHealth()));
 	yourHPline.setColor(0, 153, 0); 
 	if (tmp.first.getHealth() <= 0.0) {
@@ -187,29 +188,29 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	
 	bool flag = false;
 	double yourAttackStr = 0.0, enemyAttackStr = 0.0;
-	// Обработка нажатия на кнопки с выбором команды
+	// ГЋГЎГ°Г ГЎГ®ГІГЄГ  Г­Г Г¦Г ГІГЁГї Г­Г  ГЄГ­Г®ГЇГЄГЁ Г± ГўГ»ГЎГ®Г°Г®Г¬ ГЄГ®Г¬Г Г­Г¤Г»
 	Vector2f mousePos = window.mapPixelToCoords(Mouse::getPosition(window));
 	if (Mouse::isButtonPressed(Mouse::Left)) {
 		if (firstButton.isButtonHovered(mousePos)) {
-			// Обработка нажатия на первую кнопку
+			// ГЋГЎГ°Г ГЎГ®ГІГЄГ  Г­Г Г¦Г ГІГЁГї Г­Г  ГЇГҐГ°ГўГіГѕ ГЄГ­Г®ГЇГЄГі
 			yourAttackStr = enemyTakeDamage(tmp, list[0]);
 			flag = true;
 			enemyAttackStr = 0.0;
 		}
 		else if (secondButton.isButtonHovered(mousePos)) {
-			// Обработка нажатия на вторую кнопку
+			// ГЋГЎГ°Г ГЎГ®ГІГЄГ  Г­Г Г¦Г ГІГЁГї Г­Г  ГўГІГ®Г°ГіГѕ ГЄГ­Г®ГЇГЄГі
 			yourAttackStr = enemyTakeDamage(tmp, list[1]);
 			flag = true;
 			enemyAttackStr = 0.0;
 		}
 		else if (thirdButton.isButtonHovered(mousePos)) {
-			// Обработка нажатия на третью кнопку
+			// ГЋГЎГ°Г ГЎГ®ГІГЄГ  Г­Г Г¦Г ГІГЁГї Г­Г  ГІГ°ГҐГІГјГѕ ГЄГ­Г®ГЇГЄГі
 			yourAttackStr = enemyTakeDamage(tmp, list[2]);
 			flag = true;
 			enemyAttackStr = 0.0;
 		}
 		else if (fourthButton.isButtonHovered(mousePos)) {
-			// Обработка нажатия на четвертую кнопку
+			// ГЋГЎГ°Г ГЎГ®ГІГЄГ  Г­Г Г¦Г ГІГЁГї Г­Г  Г·ГҐГІГўГҐГ°ГІГіГѕ ГЄГ­Г®ГЇГЄГі
 			yourAttackStr = enemyTakeDamage(tmp, list[3]);
 			flag = true;
 			enemyAttackStr = 0.0;
