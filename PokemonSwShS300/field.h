@@ -214,6 +214,9 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 			flag = true;
 			enemyAttackStr = 0.0;
 		}
+		else if (fourthButton.isButtonHovered(mousePos)) {
+			
+		}
 	}
 
 	vector<PCommand> listEnemyCommand = tmp.second.getMoves();

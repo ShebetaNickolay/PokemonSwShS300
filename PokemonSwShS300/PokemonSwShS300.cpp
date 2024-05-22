@@ -79,16 +79,15 @@ int main() {
     int ind1 = 0, ind2 = 0;
     pair<PokeMon, PokeMon> tmp = { list_of_op.first[ind1], list_of_op.second[ind2] };
       
-   // pair<vector<PokeMon>, vector<PokeMon>> battle_op = make_pair(create_your_team(), create_enemy_team());
     RenderWindow window(VideoMode(1600, 1000), "Pokemon. Galar forest battle.");
 
-   //Music music;
-   //if (!music.openFromFile("music/battle1.mp3"))
-   //{
-   //    return -1;
-   //}
+   Music music;
+   if (!music.openFromFile("music/battle1.mp3"))
+   {
+       return -1;
+   }
 
-   //music.play();
+   music.play();
 
    string situation = "The fight has begun. ";
    situation += tmp.first.getName();
@@ -108,14 +107,24 @@ int main() {
         drawField(window, tmp, situation);
         window.display();
 
-        if (tmp.first.getHealth() <= 0.0) {
-            ind1++;
-            tmp.first = list_of_op.first[ind1];
+        if (tmp.first.getHealth() <= -20.0) {
+            if (ind1 + 1 < list_of_op.first.size()) {
+                ind1++;
+                tmp.first = list_of_op.first[ind1];
+            }
+            else {
+                situation = "Congratulations, you've lost!";
+            }
         }
 
-        if (tmp.second.getHealth() <= 0.0) {
-            ind2++;
-            tmp.second = list_of_op.second[ind2];
+        if (tmp.second.getHealth() <= -20.0) {
+            if (ind2 + 1 < list_of_op.second.size()) {
+                ind2++;
+                tmp.second = list_of_op.second[ind2];
+            }
+            else {
+                situation = "You have won!";
+            }
         }
     }
 

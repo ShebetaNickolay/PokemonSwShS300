@@ -43,6 +43,8 @@ public:
         RectangleShape button(Vector2f(width, height));
         button.setPosition(x, y);
         button.setFillColor(color);
+        button.setOutlineColor(Color::Black);
+        button.setOutlineThickness(5);
         window.draw(button);
 
         Font font;
