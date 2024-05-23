@@ -49,8 +49,15 @@ public:
         redRect.setOutlineColor(Color::Black);
         redRect.setOutlineThickness(5);
         window.draw(redRect);
-
-        RectangleShape greenRect(Vector2f(width * stod(text) / begHealthDoub, height));
+    
+        double newWidth;
+        if (stod(text) >= 0.0) {
+            newWidth = width * stod(text) / begHealthDoub;
+        }
+        else {
+            newWidth = 1.0;
+        }
+        RectangleShape greenRect(Vector2f(newWidth, height));
         greenRect.setPosition(x, y);
         greenRect.setFillColor(Color(0, 153, 0));
         greenRect.setOutlineColor(Color::Black);

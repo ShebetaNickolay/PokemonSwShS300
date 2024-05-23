@@ -104,7 +104,7 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	sprite.setPosition(0, 0);
 
 	// Ваш ПокеМон
-	RectangleShape YouSquare(Vector2f(550, 550));
+	RectangleShape YouSquare(Vector2f(450, 550));
 	YouSquare.setPosition(150, 375);
 
 	// Вражеский ПокеМон
@@ -112,8 +112,8 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	EnemySquare.setPosition(1125, 200);
 
 	// Основная часть для меню 
-	RectangleShape MenuRectangle(Vector2f(550, 400));
-	MenuRectangle.setPosition(1040, 585);
+	RectangleShape MenuRectangle(Vector2f(475, 310));
+	MenuRectangle.setPosition(1115, 680);
 	MenuRectangle.setFillColor(Color(0, 140, 0)); // Темно-зеленый цвет
 	MenuRectangle.setOutlineColor(Color::Black);
 	MenuRectangle.setOutlineThickness(5);
@@ -152,19 +152,19 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	window.draw(text);
 
 	// Приемы вашего ПокеМона
-	Button firstButton(1050, 600, 250, 150, list[0].getName());
+	Button firstButton(1125, 700, 450, 50, list[0].getName());
 	firstButton.setColor(colorTypeList[list[0].getTypeCom()]);
 	firstButton.drawButton(window);
 
-	Button secondButton(1325, 600, 250, 150, list[1].getName());
+	Button secondButton(1125, 775, 450, 50, list[1].getName());
 	secondButton.setColor(colorTypeList[list[1].getTypeCom()]);
 	secondButton.drawButton(window);
 
-	Button thirdButton(1050, 800, 250, 150, list[2].getName());
+	Button thirdButton(1125, 850, 450, 50, list[2].getName());
 	thirdButton.setColor(colorTypeList[list[2].getTypeCom()]);
 	thirdButton.drawButton(window);
 	
-	Button fourthButton(1325, 800, 250, 150, list[3].getName());
+	Button fourthButton(1125, 925, 450, 50, list[3].getName());
 	fourthButton.setColor(colorTypeList[list[3].getTypeCom()]);
 	fourthButton.drawButton(window);
 
@@ -173,25 +173,25 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	Run.setColor(0, 204, 102);
 	Run.drawButton(window);
 
-	double num1 = tmp.first.getHealth(), num2 = tmp.second.getHealth();
-	std::stringstream stream, stream2;
-	stream << std::fixed << std::setprecision(2) << num1;
-	stream2 << std::fixed << std::setprecision(2) << num2;
-	std::string str1 = stream.str();
-	std::string str2 = stream2.str();
+double num1 = tmp.first.getHealth(), num2 = tmp.second.getHealth();
+std::stringstream stream, stream2;
+stream << std::fixed << std::setprecision(2) << num1;
+stream2 << std::fixed << std::setprecision(2) << num2;
+std::string str1 = stream.str();
+std::string str2 = stream2.str();
+	
+// Полосы здровья вашего и вражеского Покемона
+HPLine yourHPline(725, 800, 250, 50, str1, tmp.first.getBegHealt());
+if (tmp.first.getHealth() <= 0.0) {
+    yourHPline.setColor(204, 0, 0);
+}
+yourHPline.drawButton(window);
 
-	// Полосы здровья вашего и вражеского Покемона
-	HPLine yourHPline(725, 800, 250, 50, str1, tmp.first.getBegHealt());
-	if (tmp.first.getHealth() <= 0.0) {
-		yourHPline.setColor(204, 0, 0);
-	}
-	yourHPline.drawButton(window);
-
-	HPLine enemyHPline(850, 200, 250, 50, str2, tmp.first.getBegHealt());
-	if (tmp.second.getHealth() <= 0.0) {
-		enemyHPline.setColor(204, 0, 0);
-	}
-	enemyHPline.drawButton(window);
+HPLine enemyHPline(850, 200, 250, 50, str2, tmp.first.getBegHealt());
+if (tmp.second.getHealth() <= 0.0) {
+    enemyHPline.setColor(204, 0, 0);
+}
+enemyHPline.drawButton(window);
 
 	
 	bool flag = false;
