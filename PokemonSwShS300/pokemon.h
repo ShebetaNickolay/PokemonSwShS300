@@ -19,10 +19,13 @@ private:
 	int type2;                 // Второй тип ПокеМона
 	string name;               // Наименование ПокеМона
 
+	double beginHealth;
 public: 
 	// Конструктор 
 	PokeMon(double health, double attack, double defense, vector<PCommand> moves, bool owner, int type1, int type2, string name) :
-		health(health), attack(attack), defense(defense), moves(moves), owner(owner), type1(type1), type2(type2), name(name) {};
+		health(health), attack(attack), defense(defense), moves(moves), owner(owner), type1(type1), type2(type2), name(name) {
+		beginHealth = health;
+	};
 	~PokeMon() {};
 
 	string getPath() {
@@ -47,6 +50,7 @@ public:
 	// Возвращение очков защиты
 	double getDefense() { return defense;}
 
+	double getBegHealt() { return beginHealth; }
 	// Возвращени списка комманд
 	vector<PCommand> getMoves() { return moves;}
 

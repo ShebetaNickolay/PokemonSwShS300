@@ -36,7 +36,7 @@ vector <vector<int>> colorTypeList = {
 	{ 255, 204, 229},
 };
 
-std::string limitPrecision(double number, int precision) {
+string limitPrecision(double number, int precision) {
 	std::ostringstream oss;
 	oss.precision(precision);
 	oss << std::fixed << number;
@@ -44,11 +44,12 @@ std::string limitPrecision(double number, int precision) {
 }
 
 int getRandomNumber() {
+	srand(time(NULL));
 	return rand() % 4;
 }
 
-double enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand) {
-	double coeff = 1.5;
+double enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand, vector<vector<double>>& typeMatrix) {
+	double coeff = abs(typeMatrix[pcommand.getTypeCom()][tmp.second.getTypes().first] + typeMatrix[pcommand.getTypeCom()][tmp.second.getTypes().second]);
 	double yourArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.first.getAttack() / 3.0) / 50.0 + 2) * coeff;
 	double dmg = tmp.second.getDefense() - yourArttack;
 	if (dmg <= 0.0) {
@@ -58,8 +59,8 @@ double enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand) {
 	return 0.0;
 };
 
-double youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand) {
-	double coeff = 1.5;
+double youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand, vector<vector<double>>& typeMatrix) {
+	double coeff = abs(typeMatrix[pcommand.getTypeCom()][tmp.first.getTypes().first] + typeMatrix[pcommand.getTypeCom()][tmp.first.getTypes().second]);
 	double enemyArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.second.getAttack() / 3.0) / 50.0 + 2) * coeff;
 	double dmg = tmp.first.getDefense() - enemyArttack;
 	if (dmg <= 0.0) {
@@ -86,7 +87,7 @@ string create_new_situation(pair<PokeMon, PokeMon>& tmp, double first, double se
 	return res;
 }
 
-void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situation) {
+void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situation, vector<vector<double>> &typeMatrix) {
 
 	vector<PCommand> list = tmp.first.getMoves();
 
@@ -189,28 +190,29 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	double yourAttackStr = 0.0, enemyAttackStr = 0.0;
 	// Обработка нажатия на кнопки с выбором команды
 	Vector2f mousePos = window.mapPixelToCoords(Mouse::getPosition(window));
+
 	if (Mouse::isButtonPressed(Mouse::Left)) {
 		if (firstButton.isButtonHovered(mousePos)) {
 			// Обработка нажатия на первую кнопку
-			yourAttackStr = enemyTakeDamage(tmp, list[0]);
+			yourAttackStr = enemyTakeDamage(tmp, list[0], typeMatrix);
 			flag = true;
 			enemyAttackStr = 0.0;
 		}
 		else if (secondButton.isButtonHovered(mousePos)) {
 			// Обработка нажатия на вторую кнопку
-			yourAttackStr = enemyTakeDamage(tmp, list[1]);
+			yourAttackStr = enemyTakeDamage(tmp, list[1], typeMatrix);
 			flag = true;
 			enemyAttackStr = 0.0;
 		}
 		else if (thirdButton.isButtonHovered(mousePos)) {
 			// Обработка нажатия на третью кнопку
-			yourAttackStr = enemyTakeDamage(tmp, list[2]);
+			yourAttackStr = enemyTakeDamage(tmp, list[2], typeMatrix);
 			flag = true;
 			enemyAttackStr = 0.0;
 		}
 		else if (fourthButton.isButtonHovered(mousePos)) {
 			// Обработка нажатия на четвертую кнопку
-			yourAttackStr = enemyTakeDamage(tmp, list[3]);
+			yourAttackStr = enemyTakeDamage(tmp, list[3], typeMatrix);
 			flag = true;
 			enemyAttackStr = 0.0;
 		}
@@ -223,7 +225,7 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	if (flag) {
 		sleep(seconds(1));
 		if (tmp.second.getHealth() > 0.0) {
-			enemyAttackStr = youTakeDamage(tmp, listEnemyCommand[getRandomNumber()]);
+			enemyAttackStr = youTakeDamage(tmp, listEnemyCommand[getRandomNumber()], typeMatrix);
 			flag = false;
 		}
 		situation = create_new_situation(tmp, yourAttackStr, enemyAttackStr);
