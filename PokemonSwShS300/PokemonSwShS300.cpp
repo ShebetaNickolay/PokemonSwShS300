@@ -56,13 +56,13 @@ vector<PokeMon> create_list_of_pokemon(vector<PCommand>& listOfCommands) {
 
     int n = listOfCommands.size();
 
-    vector<PCommand> comm;
-    comm.push_back(listOfCommands[rand() % n]);
-    comm.push_back(listOfCommands[rand() % n]);
-    comm.push_back(listOfCommands[rand() % n]);
-    comm.push_back(listOfCommands[rand() % n]);
     if (file.is_open()) {
         while (file >> health >> attack >> defense >> owner >> type1 >> type2 >> name) {
+            vector<PCommand> comm;
+            comm.push_back(listOfCommands[rand() % n]);
+            comm.push_back(listOfCommands[rand() % n]);
+            comm.push_back(listOfCommands[rand() % n]);
+            comm.push_back(listOfCommands[rand() % n]);
             result.push_back(PokeMon(health, attack, defense, comm, owner, type1, type2, name));
         }
     }
@@ -101,13 +101,13 @@ int main() {
 
     RenderWindow window(VideoMode(1600, 1000), "Pokemon. Galar forest battle.");
 
-    Music music;
-    if (!music.openFromFile("music/battle1.mp3"))
-    {
-        return -1;
-    }
+    //Music music;
+    //if (!music.openFromFile("music/battle1.mp3"))
+    //{
+     //   return -1;
+   // }
 
-    music.play();
+   // music.play();
 
     string situation = "The fight has begun. ";
     situation += tmp.first.getName();

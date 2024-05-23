@@ -3,10 +3,12 @@
 #include "button.h"
 #include "pokemon.h"
 #include "command.h"
+#include "hpline.h"
 
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <iomanip>
 #include <string>
 
 using namespace std;
@@ -171,20 +173,26 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	Run.setColor(0, 204, 102);
 	Run.drawButton(window);
 
+	double num1 = tmp.first.getHealth(), num2 = tmp.second.getHealth();
+	std::stringstream stream, stream2;
+	stream << std::fixed << std::setprecision(2) << num1;
+	stream2 << std::fixed << std::setprecision(2) << num2;
+	std::string str1 = stream.str();
+	std::string str2 = stream2.str();
+
 	// Полосы здровья вашего и вражеского Покемона
-	Button yourHPline(725, 800, 250, 50, to_string(tmp.first.getHealth()));
-	yourHPline.setColor(0, 153, 0); 
+	HPLine yourHPline(725, 800, 250, 50, str1, tmp.first.getBegHealt());
 	if (tmp.first.getHealth() <= 0.0) {
 		yourHPline.setColor(204, 0, 0);
 	}
 	yourHPline.drawButton(window);
 
-	Button enemyHPline(850, 200, 250, 50, to_string(tmp.second.getHealth()));
-	enemyHPline.setColor(0, 151, 0);
+	HPLine enemyHPline(850, 200, 250, 50, str2, tmp.first.getBegHealt());
 	if (tmp.second.getHealth() <= 0.0) {
 		enemyHPline.setColor(204, 0, 0);
 	}
 	enemyHPline.drawButton(window);
+
 	
 	bool flag = false;
 	double yourAttackStr = 0.0, enemyAttackStr = 0.0;

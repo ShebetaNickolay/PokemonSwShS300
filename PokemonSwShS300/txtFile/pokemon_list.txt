@@ -2,7 +2,7 @@
 300 60 0 0 1 2 Carkol
 300 60 0 0 2 2 Charmander
 300 60 0 0 3 2 Corvisquire
-300 60 0 0 4 2 Dragapultpng
+300 60 0 0 4 2 Dragapult
 300 60 0 0 5 2 Eternatus
 300 60 0 0 6 2 Falinks
 300 60 0 0 7 2 Grookey 
@@ -11,7 +11,7 @@
 300 60 0 0 0 2 Mew 
 300 60 0 0 1 2 Milcery 
 300 60 0 0 2 2 Morpeko
-300 60 0 0 3 2 Nacistack 
+300 60 0 0 3 2 Naclstack 
 300 60 0 0 4 2 Nidoran-m 
 300 60 0 0 5 2 Perrserker 
 300 60 0 0 1 2 Pikachu 
@@ -24,4 +24,4 @@
 300 60 0 0 1 2 Sobble 
 300 60 0 0 1 2 Toxtricity
 300 60 0 0 1 2 Trapinch 
-300 60 10 0 1 2 Vanillite
+300 60 0 0 1 2 Vanillite

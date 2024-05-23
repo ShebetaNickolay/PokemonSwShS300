@@ -51,7 +51,7 @@ public:
 	double getDefense() { return defense;}
 
 	double getBegHealt() { return beginHealth; }
-	// Возвращени списка комманд
+	// Возвращение списка комманд
 	vector<PCommand> getMoves() { return moves;}
 
 	// Возвращение принадлежности
