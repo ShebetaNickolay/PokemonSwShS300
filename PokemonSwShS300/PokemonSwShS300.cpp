@@ -32,13 +32,14 @@ vector<PCommand> create_list_of_commands() {
     vector<PCommand> result;
 
     double damage, healing;
-    bool owner;
+    bool owner, status;
     int type;
     string name;
 
+
     if (file.is_open()) {
-        while (file >> damage >> healing >> owner >> type >> name) {
-            result.push_back(PCommand(damage, healing, owner, type, name));
+        while (file >> damage >> healing >> owner >> type >> name >> status) {
+            result.push_back(PCommand(damage, healing, owner, type, name, status));
         }
     }
     file.close();
@@ -109,11 +110,14 @@ pair<vector<PokeMon>, vector<PokeMon>> create_list(vector<PokeMon>& list_of_your
 int main() 
 {
     srand(time(NULL));
+
     vector<vector<double>> typeMatrix = create_type_matrix();
     vector<PCommand> commandList = create_list_of_commands();
     vector<PokeMon> pokemonListE = create_list_of_pokemon(commandList, 1);
     vector<PokeMon> pokemonListY = create_list_of_pokemon(commandList, 0);
     pair<vector<PokeMon>, vector<PokeMon>> list_of_op = create_list(pokemonListY, pokemonListE);
+
+    pair<PCommand, int> weatherCommand = { commandList[0], -1 };
 
     int ind1 = 0, ind2 = 0;
     pair<PokeMon, PokeMon> tmp = { list_of_op.first[ind1], list_of_op.second[ind2] };
@@ -164,8 +168,8 @@ int main()
         animationSprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
         animationSprite.setScale(3.5f, 3.5f);
 
-        float enemyPositionX = (float)window.getSize().x - frameWidth * 7.5f; // Правый край окна минус ширина текстуры
-        float enemyPositionY = frameHeight * 6.0f; // Позиция по Y (может быть изменена по необходимости)
+        float enemyPositionX = 1060; // Правый край окна минус ширина текстуры
+        float enemyPositionY = 175; // Позиция по Y (может быть изменена по необходимости)
 
         animationSprite.setPosition(enemyPositionX, enemyPositionY);
 
@@ -184,7 +188,7 @@ int main()
 
         window.draw(animationSprite);
 
-        drawField(window, tmp, situation, typeMatrix);
+        drawField(window, tmp, situation, typeMatrix, weatherCommand);
         window.display();
 
         if (tmp.first.getHealth() <= 0.0) {
@@ -203,7 +207,8 @@ int main()
                 tmp.second = list_of_op.second[ind2];
             }
             else {
-                situation = "You have won!";
+                situation = "You have won! Bake a punching bag!";
+
             }
         }
     }

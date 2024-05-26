@@ -12,11 +12,13 @@ private:
 	double healing;        // Лечение
 	int type;           // Тип команды
 	string name;        // Наименование команды
+	bool status; // 0 - обычная атака, 1 - статусная.
+
 public:
 	bool owner;         // Принадлежность
 	// Конструктор 
-	PCommand(double damage, double healing, bool owner, int type, string name) :
-		damage(damage), healing(healing), owner(owner), type(type), name(name) {};
+	PCommand(double damage, double healing, bool owner, int type, string name, bool status) :
+		damage(damage), healing(healing), owner(owner), type(type), name(name), status(status) {};
 	~PCommand() {};
 
 	// Возвращение урона
@@ -30,6 +32,8 @@ public:
 
 	// Возвращение принадлежности
 	bool getOwner() { return owner;}
+
+	bool getStatus() { return status; }
 
 	// Возвращение наименование команды
 	string getName() { return name;}
