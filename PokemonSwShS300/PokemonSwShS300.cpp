@@ -50,20 +50,20 @@ vector<PokeMon> create_list_of_pokemon(vector<PCommand>& listOfCommands) {
     ifstream file("txtFile/pokemon_list.txt");
     vector<PokeMon> result;
     double health, attack, defense;
-    bool owner;
     int type1, type2;
     string name;
+    int cFrame, widthPic, heightPic;
 
     int n = listOfCommands.size();
 
     if (file.is_open()) {
-        while (file >> health >> attack >> defense >> owner >> type1 >> type2 >> name) {
+        while (file >> health >> attack >> defense >> type1 >> type2 >> name >> cFrame >> widthPic >> heightPic) {
             vector<PCommand> comm;
             comm.push_back(listOfCommands[rand() % n]);
             comm.push_back(listOfCommands[rand() % n]);
             comm.push_back(listOfCommands[rand() % n]);
             comm.push_back(listOfCommands[rand() % n]);
-            result.push_back(PokeMon(health, attack, defense, comm, owner, type1, type2, name));
+            result.push_back(PokeMon(health, attack, defense, comm, type1, type2, name, cFrame, widthPic, heightPic));
         }
     }
     file.close();
@@ -80,16 +80,24 @@ pair<vector<PokeMon>, vector<PokeMon>> create_list(vector<PokeMon>& list_of_pok)
                               list_of_pok[rand() % n],
                              list_of_pok[rand() % n],
                               list_of_pok[rand() % n] };
+
+    for (int i = 0; i < first.size(); i++) {
+        first[i].owner = 0;
+    }
     vector<PokeMon> second = { list_of_pok[rand() % n],
                               list_of_pok[rand() % n],
                               list_of_pok[rand() % n],
                               list_of_pok[rand() % n],
                              list_of_pok[rand() % n],
                               list_of_pok[rand() % n] };
+    for (int i = 0; i < second.size(); i++) {
+        second[i].owner = 1;
+    }
     return make_pair(first, second);
 }
 
-int main() {
+int main() 
+{
     srand(time(NULL));
     vector<vector<double>> typeMatrix = create_type_matrix();
     vector<PCommand> commandList = create_list_of_commands();
@@ -114,16 +122,58 @@ int main() {
     situation += " VS ";
     situation += tmp.second.getName();
 
+    sf::Clock animationClock;
+    int currentFrame = 0;
+
     while (window.isOpen())
     {
+        window.clear();
+        Texture texture;
+        if (!texture.loadFromFile("img/battle_phon/forest2.png")) { return 0; }
+        Sprite sprite(texture);
+
+        sprite.setTexture(texture);
+        sprite.setScale((float)window.getSize().x / sprite.getLocalBounds().width,
+            (float)window.getSize().y / sprite.getLocalBounds().height);
+
+        sprite.setPosition(0, 0);
+        window.draw(sprite);
+
+        sf::Texture animationTexture;
+        if (!animationTexture.loadFromFile(tmp.second.getPath())) {
+            // Ошибка при загрузке текстуры
+            return 0;
+        }
+
+        int frameCount = tmp.second.getcFrame();
+        int frameWidth = tmp.second.getWidth() / frameCount; // Ширина кадра
+        int frameHeight = tmp.second.getHeight(); // Высота кадра
+
+        sf::Sprite animationSprite(animationTexture);
+        animationSprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
+        animationSprite.setScale(3.5f, 3.5f);
+        animationSprite.setPosition((float)window.getSize().x - 425, 300);
+
+
+
+
+
+
         sf::Event event;
+
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
 
-        window.clear();
+        if (animationClock.getElapsedTime().asSeconds() >= 0.6f) {
+            currentFrame = (currentFrame + 1) % frameCount;
+            animationSprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 0, frameWidth, frameHeight));
+        }
+
+        window.draw(animationSprite);
+
         drawField(window, tmp, situation, typeMatrix);
         window.display();
 

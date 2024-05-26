@@ -10,9 +10,9 @@ class PCommand {
 private:
 	double damage;		    // Урон
 	double healing;        // Лечение
-	int type;           // Тип комманды
+	int type;           // Тип команды
 	bool owner;         // Принадлежность
-	string name;        // Наименование комманды
+	string name;        // Наименование команды
 public:
 
 	// Конструктор 
@@ -26,13 +26,13 @@ public:
 	// Возвращение значения лечения
 	double getHealing() { return healing;}
 
-	// Возвращение типа комманды
+	// Возвращение типа команды
 	int getTypeCom() { return type;}
 
 	// Возвращение принадлежности
 	bool getOwner() { return owner;}
 
-	// Возвращение наименование комманды
+	// Возвращение наименование команды
 	string getName() { return name;}
 };
 

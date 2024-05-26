@@ -93,24 +93,6 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 
 	vector<PCommand> list = tmp.first.getMoves();
 
-	Texture texture; 
-	if (!texture.loadFromFile("img/battle_phon/forest2.png")) { return; } 
-	Sprite sprite(texture); 
-
-	sprite.setTexture(texture); 
-	sprite.setScale((float)window.getSize().x / sprite.getLocalBounds().width, 
-		(float)window.getSize().y / sprite.getLocalBounds().height);
-		
-	sprite.setPosition(0, 0);
-
-	// Ваш ПокеМон
-	RectangleShape YouSquare(Vector2f(450, 550));
-	YouSquare.setPosition(150, 375);
-
-	// Вражеский ПокеМон
-	RectangleShape EnemySquare(Vector2f(250, 250));
-	EnemySquare.setPosition(1125, 200);
-
 	// Основная часть для меню 
 	RectangleShape MenuRectangle(Vector2f(475, 310));
 	MenuRectangle.setPosition(1115, 680);
@@ -128,26 +110,8 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	text.setString(situation);
 	text.setPosition(300, 10);
 
-	// Загрузка изображения вашего покемона
-	Texture yourPokemonTexture;
-	if (!yourPokemonTexture.loadFromFile(tmp.first.getPath())) {
-		// Ошибка при загрузке изображения
-		return;
-	}
-	YouSquare.setTexture(&yourPokemonTexture);
-
-	// Загрузка изображения для вражеского ПокеМона
-	Texture enemyPokemonTexture;
-	if (!enemyPokemonTexture.loadFromFile(tmp.second.getPath())) {
-		// Ошибка при загрузке изображения
-		return;
-	}
-	EnemySquare.setTexture(&enemyPokemonTexture);
-
 	// Отрисовка всех элементов
-	window.draw(sprite);
-	window.draw(YouSquare);
-	window.draw(EnemySquare);
+
 	window.draw(MenuRectangle);
 	window.draw(text);
 

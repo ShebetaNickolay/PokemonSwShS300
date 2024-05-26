@@ -14,16 +14,22 @@ private:
 	double attack;                // Базовый урон
 	double defense;               // Защита
 	vector<PCommand> moves;    // Список комманды
-	bool owner;				   // Принадлежность ПокеМона, 0 - мой, 1 - чужой 
 	int type1;				   // Первый тип ПокеМона
 	int type2;                 // Второй тип ПокеМона
 	string name;               // Наименование ПокеМона
 
+	int cFrame;
+	int width;
+	int height;
 	double beginHealth;
 public: 
+	bool owner = 0;				   // Принадлежность ПокеМона, 0 - мой, 1 - чужой 
 	// Конструктор 
-	PokeMon(double health, double attack, double defense, vector<PCommand> moves, bool owner, int type1, int type2, string name) :
-		health(health), attack(attack), defense(defense), moves(moves), owner(owner), type1(type1), type2(type2), name(name) {
+	PokeMon(double health, double attack, double defense, vector<PCommand> moves, 
+		int type1, int type2, string name, int cFrame, int width, int height) :
+		health(health), attack(attack), defense(defense), moves(moves),
+		type1(type1), type2(type2), name(name), cFrame(cFrame), width(width), height(height)
+	{
 		beginHealth = health;
 	};
 	~PokeMon() {};
@@ -62,6 +68,17 @@ public:
 		return make_pair(type1, type2);
 	}
 
+	int getcFrame() {
+		return cFrame;
+	}
+
+	int getWidth() {
+		return width;
+	}
+
+	int getHeight() {
+		return height;
+	}
 	// Возвращение наименование комманды
 	string getName() { return name; }
 
