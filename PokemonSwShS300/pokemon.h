@@ -79,6 +79,11 @@ public:
 	int getHeight() {
 		return height;
 	}
+
+	void getHeal(double heal)
+	{
+		health += heal;
+	}
 	// Возвращение наименование комманды
 	string getName() { return name; }
 

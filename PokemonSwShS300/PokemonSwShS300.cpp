@@ -46,8 +46,15 @@ vector<PCommand> create_list_of_commands() {
 }
 
 
-vector<PokeMon> create_list_of_pokemon(vector<PCommand>& listOfCommands) {
-    ifstream file("txtFile/pokemon_list.txt");
+vector<PokeMon> create_list_of_pokemon(vector<PCommand>& listOfCommands, bool flag) {
+    string nameF = "";
+    if (flag) {
+        nameF = "txtFile/enemy_pokemon_list.txt";
+    }
+    else {
+        nameF = "txtFile/your_pokemon_list.txt";
+    }
+    ifstream file(nameF);
     vector<PokeMon> result;
     double health, attack, defense;
     int type1, type2;
@@ -63,6 +70,9 @@ vector<PokeMon> create_list_of_pokemon(vector<PCommand>& listOfCommands) {
             comm.push_back(listOfCommands[rand() % n]);
             comm.push_back(listOfCommands[rand() % n]);
             comm.push_back(listOfCommands[rand() % n]);
+            for (int i = 0; i < 4; i++) {
+                comm[i].owner = flag;
+            }
             result.push_back(PokeMon(health, attack, defense, comm, type1, type2, name, cFrame, widthPic, heightPic));
         }
     }
@@ -71,25 +81,25 @@ vector<PokeMon> create_list_of_pokemon(vector<PCommand>& listOfCommands) {
 }
 
 
-pair<vector<PokeMon>, vector<PokeMon>> create_list(vector<PokeMon>& list_of_pok) {
-    int n = list_of_pok.size();
-
-    vector<PokeMon> first = { list_of_pok[rand() % n],
-                              list_of_pok[rand() % n],
-                             list_of_pok[rand() % n],
-                              list_of_pok[rand() % n],
-                             list_of_pok[rand() % n],
-                              list_of_pok[rand() % n] };
+pair<vector<PokeMon>, vector<PokeMon>> create_list(vector<PokeMon>& list_of_your_pok, vector<PokeMon>& list_of_enemy_pok) {
+    int n = list_of_your_pok.size();
+    int m = list_of_enemy_pok.size();
+    vector<PokeMon> first = { list_of_your_pok[rand() % n],
+                             list_of_your_pok[rand() % n],
+                             list_of_your_pok[rand() % n],
+                              list_of_your_pok[rand() % n],
+                            list_of_your_pok[rand() % n],
+                              list_of_your_pok[rand() % n] };
 
     for (int i = 0; i < first.size(); i++) {
         first[i].owner = 0;
     }
-    vector<PokeMon> second = { list_of_pok[rand() % n],
-                              list_of_pok[rand() % n],
-                              list_of_pok[rand() % n],
-                              list_of_pok[rand() % n],
-                             list_of_pok[rand() % n],
-                              list_of_pok[rand() % n] };
+    vector<PokeMon> second = { list_of_enemy_pok[rand() % m],
+                              list_of_enemy_pok[rand() % m],
+                              list_of_enemy_pok[rand() % m],
+                              list_of_enemy_pok[rand() % m],
+                            list_of_enemy_pok[rand() % m],
+                              list_of_enemy_pok[rand() % m] };
     for (int i = 0; i < second.size(); i++) {
         second[i].owner = 1;
     }
@@ -101,21 +111,22 @@ int main()
     srand(time(NULL));
     vector<vector<double>> typeMatrix = create_type_matrix();
     vector<PCommand> commandList = create_list_of_commands();
-    vector<PokeMon> pokemonList = create_list_of_pokemon(commandList);
-    pair<vector<PokeMon>, vector<PokeMon>> list_of_op = create_list(pokemonList);
+    vector<PokeMon> pokemonListE = create_list_of_pokemon(commandList, 1);
+    vector<PokeMon> pokemonListY = create_list_of_pokemon(commandList, 0);
+    pair<vector<PokeMon>, vector<PokeMon>> list_of_op = create_list(pokemonListY, pokemonListE);
 
     int ind1 = 0, ind2 = 0;
     pair<PokeMon, PokeMon> tmp = { list_of_op.first[ind1], list_of_op.second[ind2] };
 
     RenderWindow window(VideoMode(1600, 1000), "Pokemon. Galar forest battle.");
 
-    //Music music;
-    //if (!music.openFromFile("music/battle1.mp3"))
-    //{
-     //   return -1;
-   // }
+    Music music;
+    if (!music.openFromFile("music/battle1.mp3"))
+    {
+        return -1;
+   }
 
-   // music.play();
+   music.play();
 
     string situation = "The fight has begun. ";
     situation += tmp.first.getName();
@@ -152,12 +163,11 @@ int main()
         sf::Sprite animationSprite(animationTexture);
         animationSprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
         animationSprite.setScale(3.5f, 3.5f);
-        animationSprite.setPosition((float)window.getSize().x - 425, 300);
 
+        float enemyPositionX = (float)window.getSize().x - frameWidth * 7.5f; // Правый край окна минус ширина текстуры
+        float enemyPositionY = frameHeight * 6.0f; // Позиция по Y (может быть изменена по необходимости)
 
-
-
-
+        animationSprite.setPosition(enemyPositionX, enemyPositionY);
 
         sf::Event event;
 
@@ -167,7 +177,7 @@ int main()
                 window.close();
         }
 
-        if (animationClock.getElapsedTime().asSeconds() >= 0.6f) {
+        if (animationClock.getElapsedTime().asSeconds() >= 0.005f) {
             currentFrame = (currentFrame + 1) % frameCount;
             animationSprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 0, frameWidth, frameHeight));
         }
@@ -177,7 +187,7 @@ int main()
         drawField(window, tmp, situation, typeMatrix);
         window.display();
 
-        if (tmp.first.getHealth() <= -20.0) {
+        if (tmp.first.getHealth() <= 0.0) {
             if (ind1 + 1 < list_of_op.first.size()) {
                 ind1++;
                 tmp.first = list_of_op.first[ind1];

@@ -11,10 +11,9 @@ private:
 	double damage;		    // Урон
 	double healing;        // Лечение
 	int type;           // Тип команды
-	bool owner;         // Принадлежность
 	string name;        // Наименование команды
 public:
-
+	bool owner;         // Принадлежность
 	// Конструктор 
 	PCommand(double damage, double healing, bool owner, int type, string name) :
 		damage(damage), healing(healing), owner(owner), type(type), name(name) {};

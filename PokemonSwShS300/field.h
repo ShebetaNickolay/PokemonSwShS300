@@ -56,6 +56,8 @@ double enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand, vector<v
 	double dmg = tmp.second.getDefense() - yourArttack;
 	if (dmg <= 0.0) {
 		tmp.second.takeDamage(-dmg);
+		tmp.first.getHeal(pcommand.getHealing());
+
 		return dmg;
 	}
 	return 0.0;
@@ -67,6 +69,7 @@ double youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand, vector<vec
 	double dmg = tmp.first.getDefense() - enemyArttack;
 	if (dmg <= 0.0) {
 		tmp.first.takeDamage(-dmg);
+		tmp.second.getHeal(pcommand.getHealing());
 		return dmg;
 	}
 
@@ -75,9 +78,9 @@ double youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand, vector<vec
 
 string create_new_situation(pair<PokeMon, PokeMon>& tmp, double first, double second) {
 	string res = "Your " + tmp.first.getName();
-	res += (" dealt " + limitPrecision(abs(first), 2) + " points of damage. ");
+	res += (" dealt " + to_string(abs(int(first))) + " points of damage. ");
 	res += ("Enemy's " + tmp.second.getName());
-	res += (" dealt " + limitPrecision(abs(second), 2) + " points of damage to you.\n");
+	res += (" dealt " + to_string(abs(int(second))) + " points of damage to you.\n");
 
 	if (tmp.first.getHealth() <= 0.0) {
 		res += ("Your PokeMon fell in battle.\n");
@@ -151,7 +154,7 @@ if (tmp.first.getHealth() <= 0.0) {
 }
 yourHPline.drawButton(window);
 
-HPLine enemyHPline(850, 200, 250, 50, str2, tmp.first.getBegHealt());
+HPLine enemyHPline(850, 200, 250, 50, str2, tmp.second.getBegHealt());
 if (tmp.second.getHealth() <= 0.0) {
     enemyHPline.setColor(204, 0, 0);
 }
