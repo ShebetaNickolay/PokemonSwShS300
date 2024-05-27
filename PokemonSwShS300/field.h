@@ -102,10 +102,10 @@ string create_new_situation(pair<PokeMon, PokeMon>& tmp, double first, double se
 	string res = "Your " + tmp.first.getName();
 	res += (" dealt " + to_string(abs(int(first))) + " points of damage. ");
 	res += ("Enemy's " + tmp.second.getName());
-	res += (" dealt " + to_string(abs(int(second))) + " points of damage to you.\n");
+	res += (" dealt " + to_string(abs(int(second))) + " points of damage to you. ");
 
 	if (tmp.first.getHealth() <= 0.0) {
-		res += ("Your PokeMon fell in battle.\n");
+		res += ("Your PokeMon fell in battle.");
 	}
 
 	if (tmp.second.getHealth() <= 0.0) {
@@ -127,13 +127,13 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 
 	// Установка шрифта для текста
 	Font font;
-	font.loadFromFile("C:/Windows/Fonts/arial.ttf");
+	font.loadFromFile("C:/Windows/Fonts/comic.ttf");
 	Text text;
 	text.setFont(font);
 	text.setCharacterSize(24);
 	text.setFillColor(Color::White);
 	text.setString(situation);
-	text.setPosition(300, 10);
+	text.setPosition(200, 10);
 
 	// Отрисовка всех элементов
 
@@ -173,13 +173,14 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	string str2 = stream2.str();
 	
 // Полосы здровья вашего и вражеского Покемона
-HPLine yourHPline(725, 800, 250, 50, str1, tmp.first.getBegHealt(), tmp.first.getTypes(), tmp.first.getName());
+
+	HPLine yourHPline(725, 800, 250, 50, str1, tmp.first.getBegHealt(), tmp.first.getTypes(), tmp.first.getName());
 if (tmp.first.getHealth() <= 0.0) {
     yourHPline.setColor(204, 0, 0);
 }
 yourHPline.drawHPLine(window);
 
-HPLine enemyHPline(850, 200, 250, 50, str2, tmp.second.getBegHealt(), tmp.second.getTypes(), tmp.second.getName());
+HPLine enemyHPline(750, 200, 250, 50, str2, tmp.second.getBegHealt(), tmp.second.getTypes(), tmp.second.getName());
 if (tmp.second.getHealth() <= 0.0) {
     enemyHPline.setColor(204, 0, 0);
 }

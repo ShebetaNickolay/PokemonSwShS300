@@ -48,7 +48,7 @@ public:
         window.draw(button);
 
         Font font;
-        font.loadFromFile("C:/Windows/Fonts/arial.ttf");
+        font.loadFromFile("C:/Windows/Fonts/comic.ttf");
 
         Text buttonText;
         buttonText.setFont(font);

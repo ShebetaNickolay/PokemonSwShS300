@@ -82,7 +82,9 @@ public:
 
 	void getHeal(double heal)
 	{
-		health += heal;
+		if (abs(heal - beginHealth) >= 1e6) {
+			health += heal;
+		}
 	}
 	// Возвращение наименование комманды
 	string getName() { return name; }

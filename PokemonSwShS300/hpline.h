@@ -69,7 +69,7 @@ public:
         window.draw(greenRect);
 
         sf::Font font;
-        font.loadFromFile("C:/Windows/Fonts/arial.ttf");
+        font.loadFromFile("C:/Windows/Fonts/comic.ttf");
 
         double num = begHealthDoub;
         std::stringstream stream;
@@ -88,21 +88,10 @@ public:
         sf::Text nameText;
         nameText.setFont(font);
         nameText.setString(namePok);
-        nameText.setCharacterSize(16);
-        nameText.setFillColor(sf::Color::Black);
-        nameText.setPosition(x + 102, y - 30);
+        nameText.setCharacterSize(40);
+        nameText.setFillColor(sf::Color::White);
+        nameText.setPosition(x + 140, y - 65);
         window.draw(nameText);
-
-        // Отображение двух маленьких квадратов
-        sf::RectangleShape square1(sf::Vector2f(50, 50));
-        square1.setPosition(x - 1, y - 52);
-        square1.setFillColor(sf::Color::Blue);
-        window.draw(square1);
-
-        sf::RectangleShape square2(sf::Vector2f(50, 50));
-        square2.setPosition(x + 51, y - 52);
-        square2.setFillColor(sf::Color::Blue);
-        window.draw(square2);
 
         Texture texture1, texture2;
 
@@ -113,7 +102,7 @@ public:
         { 
             return; 
         }
-        if (!texture1.loadFromFile(second))
+        if (!texture2.loadFromFile(second))
         {
             return;
         }
@@ -122,14 +111,12 @@ public:
         sprite1.setTexture(texture1);
         sprite2.setTexture(texture2);
 
-
-        sprite1.setPosition(x - 1, y - 52);
+        sprite1.setScale(0.5, 0.5); // Уменьшаем масштаб текстур, чтобы они поместились в квадраты
+        sprite1.setPosition(x - 3, y - 75);
         window.draw(sprite1);
 
-        sprite1.setScale(10, 10); // Уменьшаем масштаб текстур, чтобы они поместились в квадраты
-        sprite2.setScale(10, 10);
-
-        sprite2.setPosition(x + 51, y - 52);
+        sprite2.setScale(0.5, 0.5);
+        sprite2.setPosition(x + 60, y - 75);
         window.draw(sprite2);
     }
 

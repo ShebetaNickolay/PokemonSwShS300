@@ -124,13 +124,13 @@ int main()
 
     RenderWindow window(VideoMode(1600, 1000), "Pokemon. Galar forest battle.");
 
-    Music music;
-    if (!music.openFromFile("music/battle1.mp3"))
-    {
-        return -1;
-   }
+    //Music music;
+    //if (!music.openFromFile("music/battle1.mp3"))
+   // {
+   //     return -1;
+ //  }
 
-   music.play();
+ //  music.play();
 
     string situation = "The fight has begun. ";
     situation += tmp.first.getName();
@@ -139,6 +139,7 @@ int main()
 
     sf::Clock animationClock;
     int currentFrame = 0;
+    int currentFrameYour = 0;
 
     while (window.isOpen())
     {
@@ -160,18 +161,73 @@ int main()
             return 0;
         }
 
+        sf::Texture animationTexture1;
+        if (!animationTexture1.loadFromFile(tmp.first.getPath())) {
+            // Ошибка при загрузке текстуры
+            return 0;
+        }
+
         int frameCount = tmp.second.getcFrame();
         int frameWidth = tmp.second.getWidth() / frameCount; // Ширина кадра
         int frameHeight = tmp.second.getHeight(); // Высота кадра
 
         sf::Sprite animationSprite(animationTexture);
         animationSprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
+
+
+        float enemyPositionX = 1200; // Правый край окна минус ширина текстуры
+        float enemyPositionY = 225; // Позиция по Y (может быть изменена по необходимости)
+
+
+        if (tmp.second.getWidth() >= 5000) {
+            enemyPositionX = 1050;
+        }
+        else if (tmp.second.getWidth() <= 3900) {
+            enemyPositionX = 1125;
+        }
+
+        if (tmp.second.getHeight() >=90) {
+            enemyPositionY = 100;
+        }
+        else if (tmp.second.getHealth() <= 60) {
+            enemyPositionY = 325;
+        }
+        
+        animationSprite.setPosition(enemyPositionX, enemyPositionY);
         animationSprite.setScale(3.5f, 3.5f);
 
-        float enemyPositionX = 1060; // Правый край окна минус ширина текстуры
-        float enemyPositionY = 175; // Позиция по Y (может быть изменена по необходимости)
+        int frameCount1 = tmp.first.getcFrame();
+        int frameWidth1 = tmp.first.getWidth() / frameCount1; // Ширина кадра
+        int frameHeight1 = tmp.first.getHeight(); // Высота кадра
 
-        animationSprite.setPosition(enemyPositionX, enemyPositionY);
+        sf::Sprite animationSprite1(animationTexture1);
+
+
+        float enemyPositionX1 = 200; // Правый край окна минус ширина текстуры
+        float enemyPositionY1 = 600; // Позиция по Y (может быть изменена по необходимости)
+
+
+
+        if (tmp.first.getWidth() >= 5000) {
+            enemyPositionX1 = 50;
+        }
+        else if (tmp.first.getWidth() <= 3900) {
+            enemyPositionX1 = 125;
+        }
+
+        if (tmp.first.getHeight() >= 90) {
+            enemyPositionY1 = 475;
+        }
+        else if (tmp.first.getHealth() <= 60) {
+            enemyPositionY1 = 700;
+        }
+
+
+
+        animationSprite1.setPosition(enemyPositionX1, enemyPositionY1);
+        animationSprite1.setTextureRect(sf::IntRect(0, 0, frameWidth1, frameHeight1));
+        animationSprite1.setScale(5.0f, 5.0f);
+
 
         sf::Event event;
 
@@ -181,12 +237,18 @@ int main()
                 window.close();
         }
 
-        if (animationClock.getElapsedTime().asSeconds() >= 0.005f) {
+        if (animationClock.getElapsedTime().asSeconds() >= 1.5f) {
             currentFrame = (currentFrame + 1) % frameCount;
             animationSprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 0, frameWidth, frameHeight));
         }
 
+        if (animationClock.getElapsedTime().asSeconds() >= 1.5f) {
+            currentFrameYour = (currentFrameYour + 1) % frameCount1;
+            animationSprite1.setTextureRect(sf::IntRect(currentFrameYour * frameWidth1, 0, frameWidth1, frameHeight1));
+        }
+
         window.draw(animationSprite);
+        window.draw(animationSprite1);
 
         drawField(window, tmp, situation, typeMatrix, weatherCommand);
         window.display();
@@ -198,6 +260,7 @@ int main()
             }
             else {
                 situation = "Congratulations, you've lost!";
+                break;
             }
         }
 
