@@ -10,21 +10,19 @@ using namespace std;
 
 class PokeMon {
 private: 
-	double health;                // Здоровье
-	double attack;                // Базовый урон
-	double defense;               // Защита
-	vector<PCommand> moves;    // Список комманды
-	int type1;				   // Первый тип ПокеМона
-	int type2;                 // Второй тип ПокеМона
-	string name;               // Наименование ПокеМона
-
-	int cFrame;
-	int width;
-	int height;
-	double beginHealth;
+	double health;                // Health
+	double attack;                // Base Damage
+	double defense;               // Protection
+	vector<PCommand> moves;		  // List of commands
+	int type1;				      // The first type of PokeMon
+	int type2;                    // The second type of PokeMon
+	string name;                  // The name of the PokeMon
+	int cFrame;				      // Number of frames
+	int width;					  // Texture width
+	int height;				      // Texture height
+	double beginHealth;           // Base health
 public: 
-	bool owner = 0;				   // Принадлежность ПокеМона, 0 - мой, 1 - чужой 
-	// Конструктор 
+	bool owner = 0;				   //  0 - You, 1 - Enmey 
 	PokeMon(double health, double attack, double defense, vector<PCommand> moves, 
 		int type1, int type2, string name, int cFrame, int width, int height) :
 		health(health), attack(attack), defense(defense), moves(moves),
@@ -34,6 +32,7 @@ public:
 	};
 	~PokeMon() {};
 
+	// Creating a file path
 	string getPath() {
 		string path = "img/";
 		if (!owner) {
@@ -42,58 +41,72 @@ public:
 		else {
 			path += "enemy_pokemon/";
 		}
-
 		path += (name + ".png");
 		return path;
 	}
 
-	// Возвращение очков здоровья
+	// Return of health points
 	double getHealth() { return health; }
 
-	// Возвращение базового урона
+	// Return of base damage
 	double getAttack() { return attack;}
 
-	// Возвращение очков защиты
+	// Return of protection points
 	double getDefense() { return defense;}
 
+	// Return of base health points
 	double getBegHealt() { return beginHealth; }
-	// Возвращение списка комманд
+
+	// Returning the list of commands
 	vector<PCommand> getMoves() { return moves;}
 
-	// Возвращение принадлежности
+	// Return of the accessory
 	bool getOwner() { return owner; }
 
-	// Возвращение типов ПокеМона
-	pair<int, int> getTypes() {
-		return make_pair(type1, type2);
-	}
+	// The Return of Pokemon Types
+	pair<int, int> getTypes() { return make_pair(type1, type2); }
 
-	int getcFrame() {
-		return cFrame;
-	}
+	// Returning the number of frames
+	int getcFrame() { return cFrame; }
 
-	int getWidth() {
-		return width;
-	}
+	// Returning the width of the texture
+	int getWidth() { return width; }
 
-	int getHeight() {
-		return height;
-	}
+	//Returning the height of the texture
+	int getHeight() { return height; }
 
+	// The method of obtaining treatment
 	void getHeal(double heal)
 	{
-		if (abs(heal - beginHealth) >= 1e6) {
-			health += heal;
+		health += heal;
+
+		// If the current health exceeds the baseline
+		if (health > beginHealth) {
+			health = beginHealth;
 		}
 	}
-	// Возвращение наименование комманды
+
+	// Returning the name of PokeMon
 	string getName() { return name; }
 
-	// метод получения урона от вражеского Покемона 
+	// The method of taking damage from an enemy PokeMon
 	void takeDamage(int damageOther) {
 		(*this).health -= damageOther;
 	}
-	// void useMove(Pokemon* enemy); // метод нанесения урона врагу 
+
+	// The method that blocks the game (the last Pokemon, yours or not, is dead)
+	void deleteComm(bool flag) {
+		for (int i = 0; i < moves.size(); i++) {
+			moves[i].damage = 0;
+			moves[i].healing = 0;
+			if (flag) { // Enemy win 
+				moves[i].name = "Enemy win";
+			}
+			else {     // Your loss or escape
+				moves[i].name = "Defeated";
+			}
+		}
+	}
 };
 
 #endif

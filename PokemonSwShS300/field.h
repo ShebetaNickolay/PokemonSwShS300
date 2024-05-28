@@ -39,9 +39,9 @@ vector <vector<int>> colorTypeList = {
 };
 
 string limitPrecision(double number, int precision) {
-	std::ostringstream oss;
+	ostringstream oss;
 	oss.precision(precision);
-	oss << std::fixed << number;
+	oss << fixed << number;
 	return oss.str();
 }
 
@@ -49,29 +49,14 @@ int getRandomNumber() {
 	srand(time(NULL));
 	return rand() % 4;
 }
-void weatherOper(pair<PokeMon, PokeMon>& tmp, pair<PCommand, int>& weather) {
-	if (weather.second <= 0) {
-		return;
-	}
-		
-	weather.second -= 1;
-	bool flag = weather.first.getOwner();
-	if (!flag) {
-		tmp.first.getHeal(weather.first.getHealing());	
-		tmp.second.takeDamage(weather.first.getDamage());	
-	}
-	else {
-		tmp.second.takeDamage(weather.first.getHealing());
-		tmp.first.takeDamage(weather.first.getDamage());
-	}
-}
 
-double enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand, vector<vector<double>>& typeMatrix, pair<PCommand, int> & weather) {
+// Handling an attack on an enemy
+double enemyTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand, vector<vector<double>>& typeMatrix, pair<PCommand, int>& weather) {
 	if (pcommand.getStatus()) {
 		weather = { pcommand, 3 };
 	}
 	double coeff = abs(typeMatrix[pcommand.getTypeCom()][tmp.second.getTypes().first] + typeMatrix[pcommand.getTypeCom()][tmp.second.getTypes().second]);
-	double yourArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.first.getAttack() / 3.0) / 50.0 + 2) * coeff;
+	double yourArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.first.getAttack() / 3.0) / 50.0) * coeff;
 	double dmg = tmp.second.getDefense() - yourArttack;
 	if (dmg <= 0.0) {
 		tmp.second.takeDamage(-dmg);
@@ -82,12 +67,13 @@ double enemyTakeDamage(pair<PokeMon, PokeMon> &tmp, PCommand &pcommand, vector<v
 	return 0.0;
 };
 
+// Handling an enemy attack
 double youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand, vector<vector<double>>& typeMatrix, pair<PCommand, int>& weather) {
 	if (pcommand.getStatus()) {
 		weather = { pcommand, 3 };
 	}
 	double coeff = abs(typeMatrix[pcommand.getTypeCom()][tmp.first.getTypes().first] + typeMatrix[pcommand.getTypeCom()][tmp.first.getTypes().second]);
-	double enemyArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.second.getAttack() / 3.0) / 50.0 + 2) * coeff;
+	double enemyArttack = (((2.0 * LEVEL / 5.0 + 2) * pcommand.getDamage() * tmp.second.getAttack() / 3.0) / 50.0) * coeff;
 	double dmg = tmp.first.getDefense() - enemyArttack;
 	if (dmg <= 0.0) {
 		tmp.first.takeDamage(-dmg);
@@ -95,9 +81,38 @@ double youTakeDamage(pair<PokeMon, PokeMon>& tmp, PCommand& pcommand, vector<vec
 		return dmg;
 	}
 
-	return 0, 0;
+	return 0.0;
 };
 
+// Weather reception processing
+void weatherOper(pair<PokeMon, PokeMon>& tmp, pair<PCommand, int>& weather, vector<vector<double>>& typeMatrix) {
+	if (weather.second <= 0) {
+		return;
+	}
+		
+	weather.second -= 1;
+	bool flag = weather.first.getOwner();
+	if (!flag) {
+		double coeff = abs(typeMatrix[weather.first.getTypeCom()][tmp.second.getTypes().first] + typeMatrix[weather.first.getTypeCom()][tmp.second.getTypes().second]);
+		double yourArttack = (((2.0 * LEVEL / 5.0 + 2) * weather.first.getDamage() * tmp.first.getAttack() / 3.0) / 50.0) * coeff;
+		double dmg = tmp.second.getDefense() - yourArttack;
+		if (dmg <= 0.0) {
+			tmp.second.takeDamage(-dmg);
+		}
+		tmp.first.getHeal(weather.first.getHealing());
+	}
+	else {
+		tmp.second.getHeal(weather.first.getHealing());
+		double coeff = abs(typeMatrix[weather.first.getTypeCom()][tmp.first.getTypes().first] + typeMatrix[weather.first.getTypeCom()][tmp.first.getTypes().second]);
+		double enemyArttack = (((2.0 * LEVEL / 5.0 + 2) * weather.first.getDamage() * tmp.second.getAttack() / 3.0) / 50.0 ) * coeff;
+		double dmg = tmp.first.getDefense() - enemyArttack;
+		if (dmg <= 0.0) {
+			tmp.first.takeDamage(-dmg);
+		}
+	}
+}
+
+// Editing the current situation
 string create_new_situation(pair<PokeMon, PokeMon>& tmp, double first, double second) {
 	string res = "Your " + tmp.first.getName();
 	res += (" dealt " + to_string(abs(int(first))) + " points of damage. ");
@@ -114,18 +129,18 @@ string create_new_situation(pair<PokeMon, PokeMon>& tmp, double first, double se
 	return res;
 }
 
-void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situation, vector<vector<double>> &typeMatrix, pair<PCommand, int> &weather) {
-
+// Drawing the battlefield and processing button clicks
+void drawField(RenderWindow& window, pair<PokeMon, PokeMon>& tmp, string& situation, vector<vector<double>>& typeMatrix, pair<PCommand, int>& weather, bool &run) {
 	vector<PCommand> list = tmp.first.getMoves();
 
-	// Основная часть для меню 
+	// Draw menu rectangle
 	RectangleShape MenuRectangle(Vector2f(475, 310));
 	MenuRectangle.setPosition(1115, 680);
 	MenuRectangle.setFillColor(Color(0, 140, 0)); // Темно-зеленый цвет
 	MenuRectangle.setOutlineColor(Color::Black);
 	MenuRectangle.setOutlineThickness(5);
 
-	// Установка шрифта для текста
+	// Setting the font for the text
 	Font font;
 	font.loadFromFile("C:/Windows/Fonts/comic.ttf");
 	Text text;
@@ -135,12 +150,10 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	text.setString(situation);
 	text.setPosition(200, 10);
 
-	// Отрисовка всех элементов
-
 	window.draw(MenuRectangle);
 	window.draw(text);
 
-	// Приемы вашего ПокеМона
+	// Your PokeMon's Tricks
 	Button firstButton(1125, 700, 450, 50, list[0].getName());
 	firstButton.setColor(colorTypeList[list[0].getTypeCom()]);
 	firstButton.drawButton(window);
@@ -157,73 +170,73 @@ void drawField(RenderWindow& window, pair<PokeMon, PokeMon> &tmp, string &situat
 	fourthButton.setColor(colorTypeList[list[3].getTypeCom()]);
 	fourthButton.drawButton(window);
 
-	// Кнопка побега, версия 1
+	// Escape button, version 1
 	Button Run(25, 25, 100, 50, "Run");
 	Run.setColor(0, 204, 102);
 	Run.drawButton(window);
 
-
 	double num1 = tmp.first.getHealth(), num2 = tmp.second.getHealth();
 	stringstream stream, stream2;
 
-	stream << std::fixed << std::setprecision(2) << num1;
+	stream << fixed << setprecision(2) << num1;
+	stream2 << fixed << setprecision(2) << num2;
 
-	stream2 << std::fixed << std::setprecision(2) << num2;
 	string str1 = stream.str();
 	string str2 = stream2.str();
 	
-// Полосы здровья вашего и вражеского Покемона
+	// Stripes of your and enemy PokeMon's health
 
 	HPLine yourHPline(725, 800, 250, 50, str1, tmp.first.getBegHealt(), tmp.first.getTypes(), tmp.first.getName());
-if (tmp.first.getHealth() <= 0.0) {
-    yourHPline.setColor(204, 0, 0);
-}
-yourHPline.drawHPLine(window);
+	if (tmp.first.getHealth() <= 0.0) { yourHPline.setColor(204, 0, 0); }
+	yourHPline.drawHPLine(window);
 
-HPLine enemyHPline(750, 200, 250, 50, str2, tmp.second.getBegHealt(), tmp.second.getTypes(), tmp.second.getName());
-if (tmp.second.getHealth() <= 0.0) {
-    enemyHPline.setColor(204, 0, 0);
-}
-enemyHPline.drawHPLine(window);
+	HPLine enemyHPline(750, 200, 250, 50, str2, tmp.second.getBegHealt(), tmp.second.getTypes(), tmp.second.getName());
+	if (tmp.second.getHealth() <= 0.0) { enemyHPline.setColor(204, 0, 0); }
+	enemyHPline.drawHPLine(window);
 
-	
 	bool flag = false;
 	double yourAttackStr = 0.0, enemyAttackStr = 0.0;
-	// Обработка нажатия на кнопки с выбором команды
+
+	// Processing button clicks with command selection
 	Vector2f mousePos = window.mapPixelToCoords(Mouse::getPosition(window));
 
 	if (Mouse::isButtonPressed(Mouse::Left)) {
+		// Attacking the enemy
 		if (firstButton.isButtonHovered(mousePos)) {
-			// Обработка нажатия на первую кнопку
 			yourAttackStr = enemyTakeDamage(tmp, list[0], typeMatrix, weather);
 			flag = true;
 			enemyAttackStr = 0.0;
-			weatherOper(tmp, weather);
+			weatherOper(tmp, weather, typeMatrix);
 		}
 		else if (secondButton.isButtonHovered(mousePos)) {
-			// Обработка нажатия на вторую кнопку
 			yourAttackStr = enemyTakeDamage(tmp, list[1], typeMatrix, weather);
 			flag = true;
 			enemyAttackStr = 0.0;
-			weatherOper(tmp, weather);
+			weatherOper(tmp, weather, typeMatrix);
 		}
 		else if (thirdButton.isButtonHovered(mousePos)) {
-			// Обработка нажатия на третью кнопку
 			yourAttackStr = enemyTakeDamage(tmp, list[2], typeMatrix, weather);
 			flag = true;
 			enemyAttackStr = 0.0;
-			weatherOper(tmp, weather);
+			weatherOper(tmp, weather,typeMatrix);
 		}
 		else if (fourthButton.isButtonHovered(mousePos)) {
-			// Обработка нажатия на четвертую кнопку
 			yourAttackStr = enemyTakeDamage(tmp, list[3], typeMatrix, weather);
 			flag = true;
 			enemyAttackStr = 0.0;
-			weatherOper(tmp, weather);
+			weatherOper(tmp, weather, typeMatrix);
+		}
+		// Escape from the battle
+		else if (Run.isButtonHovered(mousePos)) {
+			tmp.first.deleteComm(0);
+			tmp.second.deleteComm(1);
+			flag = false;
+			situation = "You shamefully avoided the simplest Pokemon battle (after the battle in the 7th-9th generation)";
+			run = true;
 		}
 	}
 
-
+	// The enemy's attack on you
 	vector<PCommand> listEnemyCommand = tmp.second.getMoves();
 	if (flag) {
 		sleep(seconds(1));
@@ -231,6 +244,9 @@ enemyHPline.drawHPLine(window);
 			enemyAttackStr = youTakeDamage(tmp, listEnemyCommand[getRandomNumber()], typeMatrix, weather);
 			flag = false;
 		}
-		situation = create_new_situation(tmp, yourAttackStr, enemyAttackStr);
+
+		if (!run) {
+			situation = create_new_situation(tmp, yourAttackStr, enemyAttackStr);
+		}
 	}
 }

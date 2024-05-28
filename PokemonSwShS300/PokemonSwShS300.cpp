@@ -4,6 +4,7 @@
 #include "pokemon.h"
 #include "command.h"
 #include "field.h" 
+#include "inst.h"
 
 #include <fstream>
 #include <vector>
@@ -14,223 +15,85 @@
 using namespace sf;
 using namespace std;
 
-vector<vector<double>> create_type_matrix() {
-    ifstream file("txtFile/type_matrix.txt");
-    vector<vector<double>> result(18, vector<double>(18, 0));
+const float enemyPositionX = 1200;  // The position of the enemy PokeMon
+const float enemyPositionY = 325;
 
-    for (int i = 0; i < 18; i++) {
-        for (int j = 0; j < 18; j++) {
-            file >> result[i][j];
-        }
-    }
-    file.close();
-    return result;
-}
-
-vector<PCommand> create_list_of_commands() {
-    ifstream file("txtFile/your_command_list.txt");
-    vector<PCommand> result;
-
-    double damage, healing;
-    bool owner, status;
-    int type;
-    string name;
-
-
-    if (file.is_open()) {
-        while (file >> damage >> healing >> owner >> type >> name >> status) {
-            result.push_back(PCommand(damage, healing, owner, type, name, status));
-        }
-    }
-    file.close();
-    return result;
-}
-
-
-vector<PokeMon> create_list_of_pokemon(vector<PCommand>& listOfCommands, bool flag) {
-    string nameF = "";
-    if (flag) {
-        nameF = "txtFile/enemy_pokemon_list.txt";
-    }
-    else {
-        nameF = "txtFile/your_pokemon_list.txt";
-    }
-    ifstream file(nameF);
-    vector<PokeMon> result;
-    double health, attack, defense;
-    int type1, type2;
-    string name;
-    int cFrame, widthPic, heightPic;
-
-    int n = listOfCommands.size();
-
-    if (file.is_open()) {
-        while (file >> health >> attack >> defense >> type1 >> type2 >> name >> cFrame >> widthPic >> heightPic) {
-            vector<PCommand> comm;
-            comm.push_back(listOfCommands[rand() % n]);
-            comm.push_back(listOfCommands[rand() % n]);
-            comm.push_back(listOfCommands[rand() % n]);
-            comm.push_back(listOfCommands[rand() % n]);
-            for (int i = 0; i < 4; i++) {
-                comm[i].owner = flag;
-            }
-            result.push_back(PokeMon(health, attack, defense, comm, type1, type2, name, cFrame, widthPic, heightPic));
-        }
-    }
-    file.close();
-    return result;
-}
-
-
-pair<vector<PokeMon>, vector<PokeMon>> create_list(vector<PokeMon>& list_of_your_pok, vector<PokeMon>& list_of_enemy_pok) {
-    int n = list_of_your_pok.size();
-    int m = list_of_enemy_pok.size();
-    vector<PokeMon> first = { list_of_your_pok[rand() % n],
-                             list_of_your_pok[rand() % n],
-                             list_of_your_pok[rand() % n],
-                              list_of_your_pok[rand() % n],
-                            list_of_your_pok[rand() % n],
-                              list_of_your_pok[rand() % n] };
-
-    for (int i = 0; i < first.size(); i++) {
-        first[i].owner = 0;
-    }
-    vector<PokeMon> second = { list_of_enemy_pok[rand() % m],
-                              list_of_enemy_pok[rand() % m],
-                              list_of_enemy_pok[rand() % m],
-                              list_of_enemy_pok[rand() % m],
-                            list_of_enemy_pok[rand() % m],
-                              list_of_enemy_pok[rand() % m] };
-    for (int i = 0; i < second.size(); i++) {
-        second[i].owner = 1;
-    }
-    return make_pair(first, second);
-}
+const float yourPositionX = 200;  // The position of the your PokeMon
+const float yourPositionY = 700;
 
 int main() 
 {
     srand(time(NULL));
+    // Creating lists for further play.
+    vector<vector<double>> typeMatrix = create_type_matrix();                   // The matrix of types needed to increase/decrease/reset damage
+    vector<PCommand> commandList = create_list_of_commands();                   // List of techniques used by PokeMon
+    vector<PokeMon> pokemonListE = create_list_of_pokemon(commandList, 1);      // The list of Pokemon available to the opponent
+    vector<PokeMon> pokemonListY = create_list_of_pokemon(commandList, 0);      // The list of PokeMon available to you
+    pair<vector<PokeMon>, vector<PokeMon>> list_of_op = create_list(pokemonListY, pokemonListE);  // first - You, secoond - Enemy
 
-    vector<vector<double>> typeMatrix = create_type_matrix();
-    vector<PCommand> commandList = create_list_of_commands();
-    vector<PokeMon> pokemonListE = create_list_of_pokemon(commandList, 1);
-    vector<PokeMon> pokemonListY = create_list_of_pokemon(commandList, 0);
-    pair<vector<PokeMon>, vector<PokeMon>> list_of_op = create_list(pokemonListY, pokemonListE);
+    // A technique that treats the Pokemon that used it
+    // And beating the enemy and beating the enemy for several moves
+    pair<PCommand, int> weatherCommand = { commandList[0], -1 };              
 
-    pair<PCommand, int> weatherCommand = { commandList[0], -1 };
-
-    int ind1 = 0, ind2 = 0;
-    pair<PokeMon, PokeMon> tmp = { list_of_op.first[ind1], list_of_op.second[ind2] };
+    int indexYou = 0, indEnemy = 0; // The current duel between yours and the enemy monster
+    pair<PokeMon, PokeMon> currDuel = { list_of_op.first[indexYou], list_of_op.second[indEnemy] };
 
     RenderWindow window(VideoMode(1600, 1000), "Pokemon. Galar forest battle.");
 
-    //Music music;
-    //if (!music.openFromFile("music/battle1.mp3"))
-   // {
-   //     return -1;
- //  }
+    Music music;   // Music
+    if (!music.openFromFile("music/battle.mp3")) { return -1;}
+    music.play();
 
- //  music.play();
+    // A string describing the current situation of the fight (start of the fight, loss, victory, escape)
+    string situation = ("The fight has begun. " + currDuel.first.getName() + " VS " + currDuel.second.getName());
 
-    string situation = "The fight has begun. ";
-    situation += tmp.first.getName();
-    situation += " VS ";
-    situation += tmp.second.getName();
+    Clock animationClock;
+    int currentFrameEnemy = 0;
+    int currentFrameYour  = 0;
+    bool run = false;
 
-    sf::Clock animationClock;
-    int currentFrame = 0;
-    int currentFrameYour = 0;
-
+    int enemyFrameCount, enemyFrameWidth, enemyFrameHeight; // Enemy
+    int yourFrameCount, yourFrameWidth, yourFrameHeight;    // You
     while (window.isOpen())
     {
         window.clear();
-        Texture texture;
-        if (!texture.loadFromFile("img/battle_phon/forest2.png")) { return 0; }
+
+        Texture texture, animationTexture, animationTexture1;
+        if (!texture.loadFromFile("img/battle_phon/forest2.png"))      { return 0; }  // The texture of the forest
+        if (!animationTexture1.loadFromFile(currDuel.first.getPath())) { return 0; }  // The texture of your current PokeMon
+        if (!animationTexture.loadFromFile(currDuel.second.getPath())) { return 0; }  // The texture ot enemy PokeMon
+
         Sprite sprite(texture);
-
         sprite.setTexture(texture);
-        sprite.setScale((float)window.getSize().x / sprite.getLocalBounds().width,
-            (float)window.getSize().y / sprite.getLocalBounds().height);
-
+        sprite.setScale((float)window.getSize().x / sprite.getLocalBounds().width, (float)window.getSize().y / sprite.getLocalBounds().height);
         sprite.setPosition(0, 0);
         window.draw(sprite);
 
-        sf::Texture animationTexture;
-        if (!animationTexture.loadFromFile(tmp.second.getPath())) {
-            // Ошибка при загрузке текстуры
-            return 0;
-        }
+        // Setting the texture of an enemy PokeMon
+        enemyFrameCount = currDuel.second.getcFrame();
+        enemyFrameWidth = currDuel.second.getWidth() / enemyFrameCount;
+        enemyFrameHeight = currDuel.second.getHeight(); 
 
-        sf::Texture animationTexture1;
-        if (!animationTexture1.loadFromFile(tmp.first.getPath())) {
-            // Ошибка при загрузке текстуры
-            return 0;
-        }
+        Sprite animationEnemySprite(animationTexture);
+        animationEnemySprite.setTextureRect(IntRect(0, 0, enemyFrameWidth, enemyFrameHeight));
+        animationEnemySprite.setScale(3.0f, 3.0f);
+        Vector2f newPosition1(enemyPositionX + 100, enemyPositionY + 50);
+        animationEnemySprite.setOrigin(enemyFrameWidth / 2, enemyFrameHeight / 2);
+        animationEnemySprite.setPosition(newPosition1.x, newPosition1.y);
 
-        int frameCount = tmp.second.getcFrame();
-        int frameWidth = tmp.second.getWidth() / frameCount; // Ширина кадра
-        int frameHeight = tmp.second.getHeight(); // Высота кадра
+        // Setting the texture of an нщгк PokeMon
+        yourFrameCount = currDuel.first.getcFrame();
+        yourFrameWidth = currDuel.first.getWidth() / yourFrameCount; 
+        yourFrameHeight = currDuel.first.getHeight(); 
 
-        sf::Sprite animationSprite(animationTexture);
-        animationSprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
+        Sprite animationYourSprite(animationTexture1);
+        animationYourSprite.setScale(5.0f, 5.0f);
+        animationYourSprite.setTextureRect(IntRect(0, 0, yourFrameWidth, yourFrameHeight));
+        Vector2f newPosition(yourPositionX + 100, yourPositionY + 50);
+        animationYourSprite.setOrigin(yourFrameWidth / 2, yourFrameHeight / 2);
+        animationYourSprite.setPosition(newPosition.x, newPosition.y);
 
-
-        float enemyPositionX = 1200; // Правый край окна минус ширина текстуры
-        float enemyPositionY = 225; // Позиция по Y (может быть изменена по необходимости)
-
-
-        if (tmp.second.getWidth() >= 5000) {
-            enemyPositionX = 1050;
-        }
-        else if (tmp.second.getWidth() <= 3900) {
-            enemyPositionX = 1125;
-        }
-
-        if (tmp.second.getHeight() >=90) {
-            enemyPositionY = 100;
-        }
-        else if (tmp.second.getHealth() <= 60) {
-            enemyPositionY = 325;
-        }
-        
-        animationSprite.setPosition(enemyPositionX, enemyPositionY);
-        animationSprite.setScale(3.5f, 3.5f);
-
-        int frameCount1 = tmp.first.getcFrame();
-        int frameWidth1 = tmp.first.getWidth() / frameCount1; // Ширина кадра
-        int frameHeight1 = tmp.first.getHeight(); // Высота кадра
-
-        sf::Sprite animationSprite1(animationTexture1);
-
-
-        float enemyPositionX1 = 200; // Правый край окна минус ширина текстуры
-        float enemyPositionY1 = 600; // Позиция по Y (может быть изменена по необходимости)
-
-
-
-        if (tmp.first.getWidth() >= 5000) {
-            enemyPositionX1 = 50;
-        }
-        else if (tmp.first.getWidth() <= 3900) {
-            enemyPositionX1 = 125;
-        }
-
-        if (tmp.first.getHeight() >= 90) {
-            enemyPositionY1 = 475;
-        }
-        else if (tmp.first.getHealth() <= 60) {
-            enemyPositionY1 = 700;
-        }
-
-
-
-        animationSprite1.setPosition(enemyPositionX1, enemyPositionY1);
-        animationSprite1.setTextureRect(sf::IntRect(0, 0, frameWidth1, frameHeight1));
-        animationSprite1.setScale(5.0f, 5.0f);
-
-
-        sf::Event event;
-
+        Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -238,45 +101,42 @@ int main()
         }
 
         if (animationClock.getElapsedTime().asSeconds() >= 1.5f) {
-            currentFrame = (currentFrame + 1) % frameCount;
-            animationSprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 0, frameWidth, frameHeight));
+            currentFrameEnemy = (currentFrameEnemy + 1) % enemyFrameCount;
+            animationEnemySprite.setTextureRect(IntRect(currentFrameEnemy * enemyFrameWidth, 0, enemyFrameWidth, enemyFrameHeight));
         }
-
         if (animationClock.getElapsedTime().asSeconds() >= 1.5f) {
-            currentFrameYour = (currentFrameYour + 1) % frameCount1;
-            animationSprite1.setTextureRect(sf::IntRect(currentFrameYour * frameWidth1, 0, frameWidth1, frameHeight1));
+            currentFrameYour = (currentFrameYour + 1) % yourFrameCount;
+            animationYourSprite.setTextureRect(IntRect(currentFrameYour * yourFrameWidth, 0, yourFrameWidth, yourFrameHeight));
         }
 
-        window.draw(animationSprite);
-        window.draw(animationSprite1);
+        window.draw(animationEnemySprite);
+        window.draw(animationYourSprite);
 
-        drawField(window, tmp, situation, typeMatrix, weatherCommand);
+        drawField(window, currDuel, situation, typeMatrix, weatherCommand, run);
         window.display();
 
-        if (tmp.first.getHealth() <= 0.0) {
-            if (ind1 + 1 < list_of_op.first.size()) {
-                ind1++;
-                tmp.first = list_of_op.first[ind1];
+        // PokeMon (Yours or not) is defeated
+        if (currDuel.first.getHealth() <= 0.0) {
+            if (indexYou + 1 < list_of_op.first.size()) {
+                indexYou++;
+                currDuel.first = list_of_op.first[indexYou];
             }
-            else {
+            else {  // Loss
                 situation = "Congratulations, you've lost!";
-                break;
+                currDuel.first.deleteComm(0);
+                currDuel.second.deleteComm(1);
             }
         }
 
-        if (tmp.second.getHealth() <= 0.0) {
-            if (ind2 + 1 < list_of_op.second.size()) {
-                ind2++;
-                tmp.second = list_of_op.second[ind2];
+        if (currDuel.second.getHealth() <= 0.0) {
+            if (indEnemy + 1 < list_of_op.second.size()) {
+                indEnemy++;
+                currDuel.second = list_of_op.second[indEnemy];
             }
-            else {
+            else {  // Win
                 situation = "You have won! Bake a punching bag!";
-
             }
         }
     }
-
-
-
     return 0;
 }

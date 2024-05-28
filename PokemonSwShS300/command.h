@@ -6,37 +6,39 @@
 
 using namespace std;
 
-class PCommand {
-private:
-	double damage;		    // Урон
-	double healing;        // Лечение
-	int type;           // Тип команды
-	string name;        // Наименование команды
-	bool status; // 0 - обычная атака, 1 - статусная.
+struct PCommand {
+double damage;		    // Damage
+	  double healing;   // Heal
+	  int type;         // Type of command
+	  string name;      // Name of the command
+	  bool status;		// 0 is a normal attack, 1 is a status (weather) attack
+	  bool owner;       // Affiliation
 
-public:
-	bool owner;         // Принадлежность
-	// Конструктор 
-	PCommand(double damage, double healing, bool owner, int type, string name, bool status) :
+	  PCommand(double damage, double healing, bool owner, int type, string name, bool status) :
 		damage(damage), healing(healing), owner(owner), type(type), name(name), status(status) {};
-	~PCommand() {};
 
-	// Возвращение урона
-	double getDamage() { return damage; }
+	  ~PCommand() {};
+
+	  // Damage Return
+	  double getDamage() { return damage; }
 	
-	// Возвращение значения лечения
-	double getHealing() { return healing;}
+	  // Returning the value of the treatment
+	  double getHealing() { return healing;}
 
-	// Возвращение типа команды
-	int getTypeCom() { return type;}
+	
+	  // Returning the command type
+	  int getTypeCom() { return type;}
 
-	// Возвращение принадлежности
-	bool getOwner() { return owner;}
+	
+	  // Return of the accessory
+	  bool getOwner() { return owner;}
 
-	bool getStatus() { return status; }
+	
+	  // Return of the status
+	  bool getStatus() { return status; }
 
-	// Возвращение наименование команды
-	string getName() { return name;}
+	  // Return the name of the command
+	  string getName() { return name;}
 };
 
 #endif
