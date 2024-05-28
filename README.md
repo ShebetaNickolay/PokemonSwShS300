@@ -1,2 +1,4 @@
-<h1>PokeMon</h1>
-#Sword / Shield. Low-poly edition#
+<h1><center>
+  PokeMon
+  Sword / Shield. Low-poly edition
+</center></h1>
